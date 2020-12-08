@@ -1,0 +1,57 @@
+{
+  "name": "nestjs-auth-module",
+  "version": "0.0.1",
+  "description": "NestJs auth module",
+  "keywords": [
+    "nestjs",
+    "auth"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "prebuild": "rm -rf dist && rm *.tgz",
+    "build": "tsc -p tsconfig.json",
+    "postbuild": "npm pack && mv nestjs-auth-service-*.tgz compiled-lib.tgz",
+    "update": "npx npm-check-updates -u && cd sample && npx npm-check-updates -u",
+    "format": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint \"{lib,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest"
+  },
+  "author": "Vong Panha Huot",
+  "license": "MIT",
+  "devDependencies": {
+    "@nestjs/common": "^7.5.5",
+    "@nestjs/core": "^7.5.5",
+    "@types/express": "^4.17.9",
+    "@types/jest": "26.0.17",
+    "@types/node": "^14.14.10",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "eslint": "^7.15.0",
+    "eslint-config-prettier": "^7.0.0",
+    "jest": "26.6.3",
+    "prettier": "^2.2.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.6.3",
+    "ts-jest": "26.4.4",
+    "typescript": "^4.1.2"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^7.5.5",
+    "@types/cookie-parser": "^1.4.2",
+    "cookie-parser": "^1.4.5"
+  },
+  "dependencies": {
+    "@nestjs/jwt": "^7.2.0",
+    "@types/bcrypt": "^3.0.0",
+    "@types/passport-jwt": "^3.0.3",
+    "@types/passport-local": "^1.0.33",
+    "bcrypt": "^5.0.0",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0"
+  }
+}
