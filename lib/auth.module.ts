@@ -7,7 +7,7 @@ import {
 import {
   AuthAsyncModuleOptions,
   AuthModuleOptionsFactory,
-} from './interface/auth-options.interface';
+} from './interfaces/auth-options.interface';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 import { AuthService } from './services/auth.service';
 

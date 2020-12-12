@@ -8,8 +8,8 @@ import {
   Req,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { RequestWithUser } from './interface/request-with-user.interface';
-import { UserDto } from './interface/user.dto';
+import { RequestWithUser } from './interfaces/request-with-user.interface';
+import { UserDto } from './interfaces/user.dto';
 
 import { AuthService } from './services/auth.service';
 
