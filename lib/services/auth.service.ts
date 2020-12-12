@@ -1,25 +1,30 @@
 import { hash, compare } from 'bcrypt';
 
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { UserService } from './user.service';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { IUserService } from '../interface/user-service.interface';
 import { UserDto } from '../interface/user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from '../auth.constants';
+import { AuthModuleOptions } from '../interface/auth-options.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    @Inject(AUTH_MODULE_OPTIONS)
+    private readonly options: AuthModuleOptions,
+    @Inject(USER_SERVICE_INTERFACE)
+    private readonly userService: IUserService,
     private readonly jwtService: JwtService,
   ) {
-    const areRequiredFieldsPresented = [
-      process.env.JWT_ACCESS_TOKEN_SECRET,
-      process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECONDS,
-      process.env.JWT_REFRESH_TOKEN_SECRET,
-      process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS,
-    ].every((value) => value !== undefined);
+    const isOptionMissing = [
+      this.options.jwtAccessTokenSecret,
+      this.options.jwtAccessTokenExpirationSeconds,
+      this.options.jwtRefreshTokenSecret,
+      this.options.jwtRefreshTokenExpirationSeconds,
+    ].some((value) => !value);
 
-    if (!areRequiredFieldsPresented) {
-      throw new Error('Missing jwt in env');
+    if (isOptionMissing) {
+      throw new Error('Missing JWT option in env');
     }
   }
 
@@ -29,7 +34,7 @@ export class AuthService {
 
     try {
       const {
-        api_token,
+        refreshToken,
         password,
         ...user
       } = await this.userService.createUser(registrationData);
@@ -42,7 +47,7 @@ export class AuthService {
   async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
       const {
-        api_token,
+        refreshToken,
         password,
         ...user
       } = await this.userService.getUserByEmail(email);
@@ -120,11 +125,11 @@ export class AuthService {
     await this.userService.setRefreshToken(currentHashedRefreshToken, userId);
   }
 
-  async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
-    const { api_token, password, ...user } = await this.userService.getUserById(
+  async getUserIfRefreshTokenMatches(token: string, userId: number) {
+    const { refreshToken, password, ...user } = await this.userService.getUserById(
       userId,
     );
-    const isTokenMatching = await compare(refreshToken, api_token);
+    const isTokenMatching = await compare(token, refreshToken);
     if (isTokenMatching) {
       return user;
     }
@@ -135,7 +140,7 @@ export class AuthService {
   }
 
   async getUserById(userId: number) {
-    const { api_token, password, ...user } = await this.userService.getUserById(
+    const { refreshToken, password, ...user } = await this.userService.getUserById(
       userId,
     );
     return user;

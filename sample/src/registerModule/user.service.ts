@@ -47,7 +47,7 @@ export class UserService {
         id: userId,
       },
       data: {
-        api_token: hashedRefreshToken,
+        refreshToken: hashedRefreshToken,
       },
     });
   }
@@ -58,7 +58,7 @@ export class UserService {
         id: userId,
       },
       data: {
-        api_token: null,
+        refreshToken: null,
       },
     });
   }
