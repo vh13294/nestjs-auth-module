@@ -1,7 +1,9 @@
 import {
+  ClassProvider,
   DynamicModule,
   Global,
   Module,
+  Type,
   ValueProvider,
 } from '@nestjs/common';
 import {
@@ -16,15 +18,15 @@ import { JwtModule } from '@nestjs/jwt';
 @Global()
 @Module({})
 export class AuthModule {
-  public static forRoot(options: AuthModuleOptions, userService: IUserService): DynamicModule {
+  public static forRoot(options: AuthModuleOptions, userService: Type<IUserService>): DynamicModule {
     const emailServiceOptionsProvider: ValueProvider<AuthModuleOptions> = {
       provide: AUTH_MODULE_OPTIONS,
       useValue: options,
     };
 
-    const userServiceProvider: ValueProvider<IUserService> = {
+    const userServiceProvider: ClassProvider<IUserService> = {
       provide: USER_SERVICE_INTERFACE,
-      useValue: userService,
+      useClass: userService,
     };
 
     return {
