@@ -7,9 +7,12 @@ export class RegisterController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(JwtAuthAccessGuard)
-  @Get('check-jwt')
+  @Get('models')
   authenticate(@Req() req: any) {
     const { user } = req;
-    return user;
+    return {
+      user,
+      models: ['a', 'b', 'c']
+    };
   }
 }
