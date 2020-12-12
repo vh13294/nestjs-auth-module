@@ -1,5 +1,7 @@
 export * from './auth.module';
 
+export * from './auth.constants';
+
 export * from './interfaces/auth-options.interface';
 export * from './interfaces/user-service.interface';
 export * from './interfaces/user.dto';

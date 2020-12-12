@@ -2,63 +2,36 @@ import {
   DynamicModule,
   Global,
   Module,
-  Provider,
+  ValueProvider,
 } from '@nestjs/common';
 import {
-  AuthAsyncModuleOptions,
-  AuthModuleOptionsFactory,
+  AuthModuleOptions,
 } from './interfaces/auth-options.interface';
-import { AUTH_MODULE_OPTIONS } from './auth.constants';
+import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
 import { AuthService } from './services/auth.service';
+import { IUserService } from '.';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({})
 export class AuthModule {
-  public static forRootAsync(options: AuthAsyncModuleOptions): DynamicModule {
-    const providers: Provider[] = this.createAsyncProviders(options);
-
-    return {
-      module: AuthModule,
-      providers: [...providers, AuthService],
-      imports: options.imports,
-      exports: [AuthService],
-    };
-  }
-
-  private static createAsyncProviders(
-    options: AuthAsyncModuleOptions,
-  ): Provider[] {
-    const providers: Provider[] = [this.createAsyncOptionsProvider(options)];
-
-    if (options.useClass) {
-      providers.push({
-        provide: options.useClass,
-        useClass: options.useClass,
-      });
-    }
-
-    return providers;
-  }
-
-  private static createAsyncOptionsProvider(
-    options: AuthAsyncModuleOptions,
-  ): Provider {
-    if (options.useFactory) {
-      return {
-        name: AUTH_MODULE_OPTIONS,
-        provide: AUTH_MODULE_OPTIONS,
-        useFactory: options.useFactory,
-        inject: options.inject || [],
-      };
-    }
-
-    return {
-      name: AUTH_MODULE_OPTIONS,
+  public static forRoot(options: AuthModuleOptions, userService: IUserService): DynamicModule {
+    const emailServiceOptionsProvider: ValueProvider<AuthModuleOptions> = {
       provide: AUTH_MODULE_OPTIONS,
-      useFactory: async (optionsFactory: AuthModuleOptionsFactory) => {
-        return optionsFactory.createAuthOptions();
-      },
-      inject: [options.useExisting! || options.useClass!],
+      useValue: options,
+    };
+
+    const userServiceProvider: ValueProvider<IUserService> = {
+      provide: USER_SERVICE_INTERFACE,
+      useValue: userService,
+    };
+
+    return {
+      imports: [PassportModule, JwtModule.register({})],
+      module: AuthModule,
+      providers: [emailServiceOptionsProvider, userServiceProvider, AuthService],
+      exports: [AuthService],
     };
   }
 }
