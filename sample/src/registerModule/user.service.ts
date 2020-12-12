@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UserDto } from '../interface/user.dto';
+import { IUserService, UserDto } from 'nestjs-auth-module';
+import { PrismaService } from 'src/prismaModule/prisma.service';
 
 @Injectable()
-export class UserService {
+export class UserService implements IUserService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getUserById(id: number) {
@@ -30,6 +30,7 @@ export class UserService {
     throw new NotFoundException('User with this email does not exist');
   }
 
+  // todo dto replace fix? extend fullUser obj? fill other fields createAt...
   async createUser(user: UserDto) {
     const newUser = await this.prismaService.user.create({
       data: {
