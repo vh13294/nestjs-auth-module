@@ -14,3 +14,10 @@ $ npm run start:dev
 # Update Lib (change to latest tgz file)
 $ npm run update:lib
 ```
+
+npx prisma init
+npx prisma introspect // after database schema changes
+npx prisma generate // after database schema changes
+npx prisma studio
+
+npx prisma db push
