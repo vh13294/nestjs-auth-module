@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { RequestWithUser } from './interface/request-with-user.interface';
-import { UserDto } from './dto/user.dto';
+import { UserDto } from './interface/user.dto';
 
 import { AuthService } from './services/auth.service';
 

@@ -2,7 +2,7 @@ import { hash, compare } from 'bcrypt';
 
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDto } from '../dto/user.dto';
+import { UserDto } from '../interface/user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 @Injectable()
