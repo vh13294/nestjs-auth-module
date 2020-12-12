@@ -126,9 +126,11 @@ export class AuthService {
   }
 
   async getUserIfRefreshTokenMatches(token: string, userId: number) {
-    const { refreshToken, password, ...user } = await this.userService.getUserById(
-      userId,
-    );
+    const {
+      refreshToken,
+      password,
+      ...user
+    } = await this.userService.getUserById(userId);
     const isTokenMatching = await compare(token, refreshToken);
     if (isTokenMatching) {
       return user;
@@ -140,9 +142,11 @@ export class AuthService {
   }
 
   async getUserById(userId: number) {
-    const { refreshToken, password, ...user } = await this.userService.getUserById(
-      userId,
-    );
+    const {
+      refreshToken,
+      password,
+      ...user
+    } = await this.userService.getUserById(userId);
     return user;
   }
 }

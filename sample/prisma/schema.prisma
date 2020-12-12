@@ -15,7 +15,7 @@ model User {
   name         String
   email        String    @unique
   password     String
-  refreshToken String?   @unique
+  refreshToken String?   @unique // temporary only use propery relation
   verifiedAt   DateTime?
   createdAt    DateTime?
   updatedAt    DateTime?

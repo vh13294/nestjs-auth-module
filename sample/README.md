@@ -15,9 +15,14 @@ $ npm run start:dev
 $ npm run update:lib
 ```
 
+## Prisma
 npx prisma init
 npx prisma introspect // after database schema changes
 npx prisma generate // after database schema changes
 npx prisma studio
 
 npx prisma db push
+
+
+## Docker
+docker-compose up -d
