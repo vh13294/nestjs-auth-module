@@ -10,4 +10,4 @@ export * from './guards/jwt-auth-access.guard';
 export * from './guards/jwt-auth-refresh.guard';
 export * from './guards/local-auth.guard';
 
-export * from './services/auth.service';
+export * from './auth.service';

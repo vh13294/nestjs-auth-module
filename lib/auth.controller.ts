@@ -11,7 +11,7 @@ import { Response } from 'express';
 import { RequestWithUser } from './interfaces/request-with-user.interface';
 import { UserDto } from './interfaces/user.dto';
 
-import { AuthService } from './services/auth.service';
+import { AuthService } from './auth.service';
 
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthAccessGuard } from './guards/jwt-auth-access.guard';
@@ -53,7 +53,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthAccessGuard)
-  @Get('check-jwt')
+  @Get('check-access-jwt')
   authenticate(@Req() req: RequestWithUser) {
     const { user } = req;
     return user;

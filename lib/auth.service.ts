@@ -1,11 +1,11 @@
 import { hash, compare } from 'bcrypt';
 
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { IUserService } from '../interfaces/user-service.interface';
-import { UserDto } from '../interfaces/user.dto';
+import { IUserService } from './interfaces/user-service.interface';
+import { UserDto } from './interfaces/user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from '../auth.constants';
-import { AuthModuleOptions } from '../interfaces/auth-options.interface';
+import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
+import { AuthModuleOptions } from './interfaces/auth-options.interface';
 
 @Injectable()
 export class AuthService {

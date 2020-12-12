@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthModuleOptions } from './interfaces/auth-options.interface';
 import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './auth.service';
 import { IUserService } from '.';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
@@ -46,7 +46,8 @@ export class AuthModule {
         JwtRefreshTokenStrategy,
         LocalStrategy,
       ],
-      exports: [AuthService],
+      // Should we expose this service?
+      // exports: [AuthService],
     };
   }
 }
