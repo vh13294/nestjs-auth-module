@@ -22,7 +22,9 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 ```
 
 ## Refresh token inactive policy
-- When refresh-tokens is called, the refresh token will be reset (update max-age)
+- Refresh Token Max-Age will be used as inactive time, will be reset when issuing new access-token
+
+- Absolute life time time will be stored in jwt.signToken(), which will be validated in Strategy
 
 
 ## Front-end handling
@@ -33,7 +35,6 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 - Run cronjob to clean expired refreshToken based on (createdAt)
 
 ## TODO
-- Example, use token relation
 - Add ? Role authorization??
 - Social Login (passport fb, google)
 - Set a max refreshToken per user (10 maybe?) delete the oldest, before adding a new one?

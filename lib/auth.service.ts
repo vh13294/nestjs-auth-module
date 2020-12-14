@@ -5,24 +5,22 @@ import { IUserService } from './interfaces/user-service.interface';
 import { CreateUserDto } from './interfaces/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
-import { AuthModuleOptions } from './interfaces/auth-options.interface';
 import { nanoid } from 'nanoid';
 import { Cookies } from './interfaces/auth-request.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(AUTH_MODULE_OPTIONS)
-    private readonly options: AuthModuleOptions,
     @Inject(USER_SERVICE_INTERFACE)
     private readonly userService: IUserService,
     private readonly jwtService: JwtService,
   ) {
     const isOptionMissing = [
-      this.options.jwtAccessTokenSecret,
-      this.options.jwtAccessTokenExpirationSeconds,
-      this.options.jwtRefreshTokenSecret,
-      this.options.jwtRefreshTokenExpirationSeconds,
+      process.env.JWT_ACCESS_TOKEN_SECRET,
+      process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECOND,
+      process.env.JWT_REFRESH_TOKEN_SECRET,
+      process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_SECOND,
+      process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_SECOND,
     ].some((value) => !value);
 
     if (isOptionMissing) {
@@ -89,7 +87,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECONDS}s`,
+        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECOND}s`,
       },
     );
     return (
@@ -97,7 +95,7 @@ export class AuthService {
       'HttpOnly; ' +
       'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECONDS}`
+      `Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECOND}`
     );
   }
 
@@ -106,7 +104,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS}s`,
+        expiresIn: `${process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_SECOND}s`,
       },
     );
 
@@ -114,13 +112,13 @@ export class AuthService {
     return token;
   }
 
-  getRefreshCookieHeader(token: string) {
+  getRefreshTokenCookieHeader(token: string) {
     return (
       `Refresh=${token}; ` +
       'HttpOnly; ' +
       'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS}`
+      `Max-Age=${process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_SECOND}`
     );
   }
 
@@ -134,7 +132,7 @@ export class AuthService {
       'HttpOnly; ' +
       'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS}`
+      `Max-Age=${process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_SECOND}`
     );
   }
 
@@ -173,7 +171,7 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(userId, deviceId);
 
     const accessCookie = this.getAccessTokenCookieHeader(userId);
-    const refreshCookie = this.getRefreshCookieHeader(refreshToken);
+    const refreshCookie = this.getRefreshTokenCookieHeader(refreshToken);
     const deviceIdCookie = this.getDeviceIdCookieHeader(deviceId);
 
     return [accessCookie, refreshCookie, deviceIdCookie];
@@ -181,5 +179,15 @@ export class AuthService {
 
   checkIfCookieHeaderPresented(cookies: Cookies) {
     return Object.values(cookies).some((cookie) => !!cookie);
+  }
+
+  async renewAccessTokenAndResetMaxAge(cookies: Cookies, userId: number) {
+    const accessCookie = this.getAccessTokenCookieHeader(userId);
+
+    // Reset Max Age
+    const refreshCookie = this.getRefreshTokenCookieHeader(cookies.Refresh);
+    const deviceIdCookie = this.getDeviceIdCookieHeader(cookies.DeviceId);
+
+    return [accessCookie, refreshCookie, deviceIdCookie];
   }
 }

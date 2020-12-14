@@ -54,13 +54,15 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthRefreshGuard)
-  @Get('renew-tokens')
+  @Get('new-access-token')
   async refresh(@Req() req: AuthRequest, @Res() res: Response) {
     const { user, cookies } = req;
 
-    await this.authService.removeRefreshToken(cookies.DeviceId, user.id);
-    const loginCookie = await this.authService.generateLoginCookie(user.id);
-    res.setHeader('Set-Cookie', loginCookie);
+    const newCookies = await this.authService.renewAccessTokenAndResetMaxAge(
+      cookies,
+      user.id,
+    );
+    res.setHeader('Set-Cookie', newCookies);
 
     return res.send(user);
   }

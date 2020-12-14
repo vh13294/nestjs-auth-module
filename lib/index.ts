@@ -2,7 +2,7 @@ export * from './auth.module';
 
 export * from './auth.constants';
 
-export * from './interfaces/auth-options.interface';
+export * from './interfaces/auth-option.interface';
 export * from './interfaces/user-service.interface';
 export * from './interfaces/create-user.dto';
 

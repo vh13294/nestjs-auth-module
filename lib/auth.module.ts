@@ -6,7 +6,7 @@ import {
   Type,
   ValueProvider,
 } from '@nestjs/common';
-import { AuthModuleOptions } from './interfaces/auth-options.interface';
+import { AuthModuleOption } from './interfaces/auth-option.interface';
 import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
 import { AuthService } from './auth.service';
 import { IUserService } from '.';
@@ -20,18 +20,10 @@ import { LocalStrategy } from './strategies/local.strategy';
 @Global()
 @Module({})
 export class AuthModule {
-  public static forRoot(
-    options: AuthModuleOptions,
-    userService: Type<IUserService>,
-  ): DynamicModule {
-    const emailServiceOptionsProvider: ValueProvider<AuthModuleOptions> = {
-      provide: AUTH_MODULE_OPTIONS,
-      useValue: options,
-    };
-
+  public static forRoot(option: AuthModuleOption): DynamicModule {
     const userServiceProvider: ClassProvider<IUserService> = {
       provide: USER_SERVICE_INTERFACE,
-      useClass: userService,
+      useClass: option.userServiceImplementation,
     };
 
     return {
@@ -39,7 +31,6 @@ export class AuthModule {
       imports: [PassportModule, JwtModule.register({})],
       module: AuthModule,
       providers: [
-        emailServiceOptionsProvider,
         userServiceProvider,
         AuthService,
         JwtAccessTokenStrategy,

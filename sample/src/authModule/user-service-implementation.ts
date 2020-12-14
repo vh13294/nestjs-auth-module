@@ -3,7 +3,7 @@ import { IUserService, CreateUserDto } from 'nestjs-auth-module';
 import { PrismaService } from 'src/prismaModule/prisma.service';
 
 @Injectable()
-export class UserService implements IUserService {
+export class UserServiceImplForAuth implements IUserService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createUser(user: CreateUserDto) {
