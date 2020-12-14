@@ -30,32 +30,6 @@ export class AuthService {
     }
   }
 
-  async register(registrationData: CreateUserDto) {
-    const hashedPassword = await hash(registrationData.password, 10);
-    registrationData.password = hashedPassword;
-
-    try {
-      const { password, ...user } = await this.userService.createUser(
-        registrationData,
-      );
-      return user;
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
-  async getAuthenticatedUser(email: string, plainTextPassword: string) {
-    try {
-      const { password, ...user } = await this.userService.getUserByEmail(
-        email,
-      );
-      await this.verifyPassword(plainTextPassword, password);
-      return user;
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
   private async verifyPassword(
     plainTextPassword: string,
     hashedPassword: string,
@@ -72,6 +46,42 @@ export class AuthService {
   ): string {
     const token = this.jwtService.sign(payload, option);
     return token;
+  }
+
+  private async setCurrentRefreshToken(
+    refreshToken: string,
+    deviceId: string,
+    userId: number,
+  ) {
+    const hashedToken = await hash(refreshToken, 10);
+    await this.userService.setRefreshToken(hashedToken, deviceId, userId);
+  }
+
+  async register(registrationData: CreateUserDto) {
+    const hashedPassword = await hash(registrationData.password, 10);
+    registrationData.password = hashedPassword;
+
+    try {
+      const { password, ...user } = await this.userService.createUser(
+        registrationData,
+      );
+      return user;
+    } catch (error) {
+      // todo proper error message? email already exist?
+      throw new BadRequestException(error);
+    }
+  }
+
+  async getAuthenticatedUser(email: string, plainTextPassword: string) {
+    try {
+      const { password, ...user } = await this.userService.getUserByEmail(
+        email,
+      );
+      await this.verifyPassword(plainTextPassword, password);
+      return user;
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   getAccessTokenCookieHeader(userId: number) {
@@ -134,15 +144,6 @@ export class AuthService {
       'Refresh=; HttpOnly; Path=/; Max-Age=0',
       'DeviceId=; HttpOnly; Path=/; Max-Age=0',
     ];
-  }
-
-  async setCurrentRefreshToken(
-    refreshToken: string,
-    deviceId: string,
-    userId: number,
-  ) {
-    const hashedToken = await hash(refreshToken, 10);
-    await this.userService.setRefreshToken(hashedToken, deviceId, userId);
   }
 
   async getUserIfRefreshTokenMatches(

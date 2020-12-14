@@ -6,6 +6,17 @@ import { PrismaService } from 'src/prismaModule/prisma.service';
 export class UserService implements IUserService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async createUser(user: CreateUserDto) {
+    const newUser = await this.prismaService.user.create({
+      data: {
+        name: user.name,
+        email: user.email,
+        password: user.password,
+      },
+    });
+    return newUser;
+  }
+
   async getUserById(id: number) {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -28,30 +39,6 @@ export class UserService implements IUserService {
       return user;
     }
     throw new NotFoundException('User with this email does not exist');
-  }
-
-  async getAllRefreshTokensOfUser(userId: number) {
-    const refreshTokens = await this.prismaService.refreshToken.findMany({
-      select: {
-        token: true,
-      },
-      where: {
-        userId: userId,
-      },
-    });
-
-    return refreshTokens.map((obj) => obj.token);
-  }
-
-  async createUser(user: CreateUserDto) {
-    const newUser = await this.prismaService.user.create({
-      data: {
-        name: user.name,
-        email: user.email,
-        password: user.password,
-      },
-    });
-    return newUser;
   }
 
   async setRefreshToken(

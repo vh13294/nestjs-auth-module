@@ -53,13 +53,6 @@ export class AuthController {
     return res.sendStatus(200);
   }
 
-  @UseGuards(JwtAuthAccessGuard)
-  @Get('check-access-jwt')
-  authenticate(@Req() req: AuthRequest) {
-    const { user } = req;
-    return user;
-  }
-
   @UseGuards(JwtAuthRefreshGuard)
   @Get('renew-tokens')
   async refresh(@Req() req: AuthRequest, @Res() res: Response) {
