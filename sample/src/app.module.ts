@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from 'nestjs-auth-module';
-import { authModuleOptions } from './authModule/authModule.config';
+import { authModuleOptions } from './authModule/auth-module.config';
 import { PrismaModule } from './prismaModule/prisma.module';
 import { RegisterModule } from './registerModule/register.module';
 

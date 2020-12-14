@@ -22,7 +22,8 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 ```
 
 ## Refresh token inactive policy
-- Refresh Token Max-Age will be used as inactive time, will be reset when issuing new access-token
+- Refresh Token Cookie Max-Age will be used as inactive time, 
+  It will be reset when issuing new access-token
 
 - Absolute life time time will be stored in jwt.signToken(), which will be validated in Strategy
 
@@ -42,4 +43,3 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 - Add unit test in sample (for controller flows?)
 - Handle when refresh-token expires (or no longer exist) update cookie header? logout?
 - Handle when access-token expires, by rotating token?
-- UserService to module option => rename IUserServiceForAuth

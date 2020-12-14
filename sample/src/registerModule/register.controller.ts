@@ -8,10 +8,8 @@ export class RegisterController {
 
   @UseGuards(JwtAuthAccessGuard)
   @Get('models')
-  authenticate(@Req() req: any) {
-    const { user } = req;
+  models(@Req() req: any) {
     return {
-      user,
       models: ['a', 'b', 'c'],
     };
   }

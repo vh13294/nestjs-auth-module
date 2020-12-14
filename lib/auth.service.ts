@@ -17,10 +17,10 @@ export class AuthService {
   ) {
     const isOptionMissing = [
       process.env.JWT_ACCESS_TOKEN_SECRET,
-      process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECOND,
+      process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE,
       process.env.JWT_REFRESH_TOKEN_SECRET,
-      process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_SECOND,
-      process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_SECOND,
+      process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY,
+      process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY,
     ].some((value) => !value);
 
     if (isOptionMissing) {
@@ -87,7 +87,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECOND}s`,
+        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE}m`,
       },
     );
     return (
@@ -95,7 +95,9 @@ export class AuthService {
       'HttpOnly; ' +
       'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECOND}`
+      `Max-Age=${
+        Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE) * 60
+      }`
     );
   }
 
@@ -104,7 +106,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_SECOND}s`,
+        expiresIn: `${process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY}d`,
       },
     );
 
@@ -118,7 +120,10 @@ export class AuthService {
       'HttpOnly; ' +
       'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_SECOND}`
+      `Max-Age=${
+        Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
+        86400
+      }`
     );
   }
 
@@ -132,15 +137,18 @@ export class AuthService {
       'HttpOnly; ' +
       'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_SECOND}`
+      `Max-Age=${
+        Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
+        86400
+      }`
     );
   }
 
   public getCookiesForLogOut() {
     return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; Path=/; Max-Age=0',
-      'DeviceId=; HttpOnly; Path=/; Max-Age=0',
+      'Authentication=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
+      'DeviceId=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
     ];
   }
 
