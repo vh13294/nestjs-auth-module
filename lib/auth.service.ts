@@ -179,6 +179,6 @@ export class AuthService {
   }
 
   checkIfCookieHeaderPresented(cookies: Cookies) {
-    return Object.keys(cookies).some((cookie) => !!cookies);
+    return Object.values(cookies).some((cookie) => !!cookie);
   }
 }
