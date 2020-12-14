@@ -2,10 +2,12 @@ import { hash, compare } from 'bcrypt';
 
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { IUserService } from './interfaces/user-service.interface';
-import { UserDto } from './interfaces/user.dto';
+import { CreateUserDto } from './interfaces/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
 import { AuthModuleOptions } from './interfaces/auth-options.interface';
+import { nanoid } from 'nanoid';
+import { Cookies } from './interfaces/auth-request.interface';
 
 @Injectable()
 export class AuthService {
@@ -28,16 +30,14 @@ export class AuthService {
     }
   }
 
-  async register(registrationData: UserDto) {
+  async register(registrationData: CreateUserDto) {
     const hashedPassword = await hash(registrationData.password, 10);
     registrationData.password = hashedPassword;
 
     try {
-      const {
-        refreshToken,
-        password,
-        ...user
-      } = await this.userService.createUser(registrationData);
+      const { password, ...user } = await this.userService.createUser(
+        registrationData,
+      );
       return user;
     } catch (error) {
       throw new BadRequestException(error);
@@ -46,11 +46,9 @@ export class AuthService {
 
   async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
-      const {
-        refreshToken,
-        password,
-        ...user
-      } = await this.userService.getUserByEmail(email);
+      const { password, ...user } = await this.userService.getUserByEmail(
+        email,
+      );
       await this.verifyPassword(plainTextPassword, password);
       return user;
     } catch (error) {
@@ -76,7 +74,7 @@ export class AuthService {
     return token;
   }
 
-  getCookieWithJwtAccessToken(userId: number) {
+  getAccessTokenCookieHeader(userId: number) {
     const token = this.signPayloadToken(
       { userId },
       {
@@ -87,12 +85,13 @@ export class AuthService {
     return (
       `Authentication=${token}; ` +
       'HttpOnly; ' +
+      'SameSite=Strict; ' +
       'Path=/; ' +
       `Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_SECONDS}`
     );
   }
 
-  getCookieWithJwtRefreshToken(userId: number) {
+  async generateRefreshToken(userId: number, deviceId: string) {
     const token = this.signPayloadToken(
       { userId },
       {
@@ -101,52 +100,85 @@ export class AuthService {
       },
     );
 
-    const cookie =
+    await this.setCurrentRefreshToken(token, deviceId, userId);
+    return token;
+  }
+
+  getRefreshCookieHeader(token: string) {
+    return (
       `Refresh=${token}; ` +
       'HttpOnly; ' +
+      'SameSite=Strict; ' +
       'Path=/; ' +
-      `Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS}`;
+      `Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS}`
+    );
+  }
 
-    return {
-      refreshCookie: cookie,
-      refreshToken: token,
-    };
+  generateDeviceId() {
+    return nanoid();
+  }
+
+  getDeviceIdCookieHeader(deviceId: string) {
+    return (
+      `DeviceId=${deviceId}; ` +
+      'HttpOnly; ' +
+      'SameSite=Strict; ' +
+      'Path=/; ' +
+      `Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME_SECONDS}`
+    );
   }
 
   public getCookiesForLogOut() {
     return [
       'Authentication=; HttpOnly; Path=/; Max-Age=0',
       'Refresh=; HttpOnly; Path=/; Max-Age=0',
+      'DeviceId=; HttpOnly; Path=/; Max-Age=0',
     ];
   }
 
-  async setCurrentRefreshToken(refreshToken: string, userId: number) {
-    const currentHashedRefreshToken = await hash(refreshToken, 10);
-    await this.userService.setRefreshToken(currentHashedRefreshToken, userId);
+  async setCurrentRefreshToken(
+    refreshToken: string,
+    deviceId: string,
+    userId: number,
+  ) {
+    const hashedToken = await hash(refreshToken, 10);
+    await this.userService.setRefreshToken(hashedToken, deviceId, userId);
   }
 
-  async getUserIfRefreshTokenMatches(token: string, userId: number) {
-    const {
-      refreshToken,
-      password,
-      ...user
-    } = await this.userService.getUserById(userId);
-    const isTokenMatching = await compare(token, refreshToken);
-    if (isTokenMatching) {
+  async getUserIfRefreshTokenMatches(
+    incomingToken: string,
+    deviceId: string,
+    userId: number,
+  ) {
+    const hashToken = await this.userService.getRefreshToken(deviceId, userId);
+    const isTokenMatched = compare(incomingToken, hashToken);
+    if (isTokenMatched) {
+      const { password, ...user } = await this.userService.getUserById(userId);
       return user;
     }
   }
 
-  async removeRefreshToken(userId: number) {
-    await this.userService.removeRefreshToken(userId);
+  async removeRefreshToken(deviceId: string, userId: number) {
+    await this.userService.removeRefreshToken(deviceId, userId);
   }
 
   async getUserById(userId: number) {
-    const {
-      refreshToken,
-      password,
-      ...user
-    } = await this.userService.getUserById(userId);
+    const { password, ...user } = await this.userService.getUserById(userId);
     return user;
+  }
+
+  async generateLoginCookie(userId: number) {
+    const deviceId = this.generateDeviceId();
+    const refreshToken = await this.generateRefreshToken(userId, deviceId);
+
+    const accessCookie = this.getAccessTokenCookieHeader(userId);
+    const refreshCookie = this.getRefreshCookieHeader(refreshToken);
+    const deviceIdCookie = this.getDeviceIdCookieHeader(deviceId);
+
+    return [accessCookie, refreshCookie, deviceIdCookie];
+  }
+
+  checkIfCookieHeaderPresented(cookies: Cookies) {
+    return Object.keys(cookies).some((cookie) => !!cookies);
   }
 }

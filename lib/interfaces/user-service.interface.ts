@@ -1,9 +1,18 @@
-import { UserDto } from './user.dto';
+import { CreateUserDto } from './create-user.dto';
+import { QueryUserDto } from './query-user.dto';
 
 export interface IUserService {
-  getUserById(id: number): Promise<UserDto>;
-  getUserByEmail(email: string): Promise<UserDto>;
-  createUser(user: UserDto): Promise<UserDto>;
-  setRefreshToken(hashedRefreshToken: string, userId: number): Promise<void>;
-  removeRefreshToken(userId: number): Promise<void>;
+  createUser(user: CreateUserDto): Promise<QueryUserDto>;
+
+  getUserById(userId: number): Promise<QueryUserDto>;
+  getUserByEmail(email: string): Promise<QueryUserDto>;
+
+  setRefreshToken(
+    token: string,
+    deviceId: string,
+    userId: number,
+  ): Promise<void>;
+  getRefreshToken(deviceId: string, userId: number): Promise<string>;
+  removeRefreshToken(deviceId: string, userId: number): Promise<void>;
+  removeAllRefreshTokensOfUser(userId: number): Promise<void>;
 }

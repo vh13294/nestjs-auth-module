@@ -1,10 +1,10 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 
-import { AuthService, JwtAuthAccessGuard } from 'nestjs-auth-module';
+import { JwtAuthAccessGuard } from 'nestjs-auth-module';
 
 @Controller('register')
 export class RegisterController {
-  constructor(private readonly authService: AuthService) {}
+  constructor() {}
 
   @UseGuards(JwtAuthAccessGuard)
   @Get('models')
@@ -12,7 +12,7 @@ export class RegisterController {
     const { user } = req;
     return {
       user,
-      models: ['a', 'b', 'c']
+      models: ['a', 'b', 'c'],
     };
   }
 }

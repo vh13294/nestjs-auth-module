@@ -12,7 +12,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "prebuild": "rm -rf dist && rm *.tgz",
+    "prebuild": "rm -rf dist && rm -f *.tgz",
     "build": "tsc -p tsconfig.json",
     "postbuild": "npm pack && mv nestjs-auth-module-*.tgz compiled-lib.tgz",
     "update": "npx npm-check-updates -u && cd sample && npx npm-check-updates -u",
@@ -51,6 +51,7 @@
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
     "bcrypt": "^5.0.0",
+    "nanoid": "^3.1.20",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0"

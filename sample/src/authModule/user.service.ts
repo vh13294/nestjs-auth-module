@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IUserService, UserDto } from 'nestjs-auth-module';
+import { IUserService, CreateUserDto } from 'nestjs-auth-module';
 import { PrismaService } from 'src/prismaModule/prisma.service';
 
 @Injectable()
@@ -30,8 +30,20 @@ export class UserService implements IUserService {
     throw new NotFoundException('User with this email does not exist');
   }
 
-  // todo dto replace fix? extend fullUser obj? fill other fields createAt...
-  async createUser(user: UserDto) {
+  async getAllRefreshTokensOfUser(userId: number) {
+    const refreshTokens = await this.prismaService.refreshToken.findMany({
+      select: {
+        token: true,
+      },
+      where: {
+        userId: userId,
+      },
+    });
+
+    return refreshTokens.map((obj) => obj.token);
+  }
+
+  async createUser(user: CreateUserDto) {
     const newUser = await this.prismaService.user.create({
       data: {
         name: user.name,
@@ -42,24 +54,44 @@ export class UserService implements IUserService {
     return newUser;
   }
 
-  async setRefreshToken(hashedRefreshToken: string, userId: number) {
-    await this.prismaService.user.update({
-      where: {
-        id: userId,
-      },
+  async setRefreshToken(
+    refreshToken: string,
+    deviceId: string,
+    userId: number,
+  ) {
+    await this.prismaService.refreshToken.create({
       data: {
-        refreshToken: hashedRefreshToken,
+        userId: userId,
+        deviceId: deviceId,
+        token: refreshToken,
       },
     });
   }
 
-  async removeRefreshToken(userId: number) {
-    await this.prismaService.user.update({
+  async getRefreshToken(deviceId: string, userId: number) {
+    const refreshToken = await this.prismaService.refreshToken.findFirst({
       where: {
-        id: userId,
+        deviceId: deviceId,
+        userId: userId,
       },
-      data: {
-        refreshToken: null,
+    });
+
+    return refreshToken.token;
+  }
+
+  async removeRefreshToken(deviceId: string, userId: number) {
+    await this.prismaService.refreshToken.deleteMany({
+      where: {
+        userId: userId,
+        deviceId: deviceId,
+      },
+    });
+  }
+
+  async removeAllRefreshTokensOfUser(userId: number) {
+    await this.prismaService.refreshToken.deleteMany({
+      where: {
+        userId: userId,
       },
     });
   }
