@@ -33,7 +33,7 @@ export class AuthController {
     const { user, cookies } = req;
 
     if (this.authService.checkIfCookieHeaderPresented(cookies)) {
-      // todo what if you have invalid cookies?, and re-authenticated, 
+      // todo what if you have invalid cookies?, and re-authenticated,
       // shall front end get empty cookie first before re-direct to login page?
       throw new MethodNotAllowedException('The user is already logged in');
     } else {

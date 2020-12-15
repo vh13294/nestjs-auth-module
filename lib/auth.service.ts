@@ -6,7 +6,8 @@ import { CreateUserDto } from './interfaces/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { USER_SERVICE_INTERFACE } from './auth.constants';
 import { nanoid } from 'nanoid';
-import { Cookies } from './interfaces/auth-request.interface';
+import { Cookies, COOKIE_KEYS } from './interfaces/auth-request.interface';
+import { generateCookie } from './helpers/cookie-generator';
 
 @Injectable()
 export class AuthService {
@@ -82,14 +83,10 @@ export class AuthService {
         expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE}m`,
       },
     );
-    return (
-      `Authentication=${token}; ` +
-      'HttpOnly; ' +
-      'SameSite=Strict; ' +
-      'Path=/; ' +
-      `Max-Age=${
-        Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE) * 60
-      }`
+    return generateCookie(
+      COOKIE_KEYS.Authentication,
+      token,
+      Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE) * 60,
     );
   }
 
@@ -107,15 +104,11 @@ export class AuthService {
   }
 
   getRefreshTokenCookieHeader(token: string) {
-    return (
-      `Refresh=${token}; ` +
-      'HttpOnly; ' +
-      'SameSite=Strict; ' +
-      'Path=/; ' +
-      `Max-Age=${
-        Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
-        86400
-      }`
+    return generateCookie(
+      COOKIE_KEYS.Refresh,
+      token,
+      Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
+        86400,
     );
   }
 
@@ -124,23 +117,19 @@ export class AuthService {
   }
 
   getDeviceIdCookieHeader(deviceId: string) {
-    return (
-      `DeviceId=${deviceId}; ` +
-      'HttpOnly; ' +
-      'SameSite=Strict; ' +
-      'Path=/; ' +
-      `Max-Age=${
-        Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
-        86400
-      }`
+    return generateCookie(
+      COOKIE_KEYS.DeviceId,
+      deviceId,
+      Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
+        86400,
     );
   }
 
   public getCookiesForLogOut() {
     return [
-      'Authentication=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
-      'DeviceId=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
+      generateCookie(COOKIE_KEYS.Authentication, '', 0),
+      generateCookie(COOKIE_KEYS.Refresh, '', 0),
+      generateCookie(COOKIE_KEYS.DeviceId, '', 0),
     ];
   }
 
