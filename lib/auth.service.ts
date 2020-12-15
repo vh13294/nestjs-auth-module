@@ -22,6 +22,7 @@ export class AuthService {
       process.env.JWT_REFRESH_TOKEN_SECRET,
       process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY,
       process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY,
+      process.env.JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED,
     ].some((value) => !value);
 
     if (isOptionMissing) {
@@ -39,13 +40,18 @@ export class AuthService {
     }
   }
 
-  private async addNewRefreshToken(
+  private async handleNewRefreshToken(
     refreshToken: string,
     deviceId: string,
     userId: number,
   ) {
     const hashedToken = await hash(refreshToken, 10);
     await this.userService.createRefreshToken(hashedToken, deviceId, userId);
+
+    await this.userService.removeEarliestRefreshTokenIfExceedLimit(
+      userId,
+      Number(process.env.JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED),
+    );
   }
 
   async register(registrationData: CreateUserDto) {
@@ -98,7 +104,7 @@ export class AuthService {
     };
 
     const token = this.jwtService.sign(payload, options);
-    await this.addNewRefreshToken(token, deviceId, userId);
+    await this.handleNewRefreshToken(token, deviceId, userId);
     return token;
   }
 

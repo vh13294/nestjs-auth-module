@@ -21,6 +21,15 @@ class UserService implements IUserService
 AuthModule.forRoot(authModuleOptions(), UserService),
 ```
 
+```ENV
+JWT_ACCESS_TOKEN_SECRET=123
+JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE=900
+JWT_REFRESH_TOKEN_SECRET=abc
+JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY=90
+JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY=14
+JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
+```
+
 ## Refresh token inactive policy
 - Refresh Token Cookie Max-Age will be used as inactive time, 
   It will be reset when issuing new access-token,
@@ -38,7 +47,6 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 ## TODO
 - Add ? Role authorization??
 - Social Login (passport fb, google)
-- Set a max refreshToken per user (10 maybe?) delete the oldest, before adding a new one?
 - Add unit test in sample (for controller flows?)
 - Handle when refresh-token expires (or no longer exist) update cookie header? logout?
 - Handle when access-token expires, by rotating token?

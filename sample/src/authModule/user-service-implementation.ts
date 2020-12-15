@@ -82,4 +82,29 @@ export class UserServiceImplForAuth implements IUserService {
       },
     });
   }
+
+  async removeEarliestRefreshTokenIfExceedLimit(userId: number, limit: number) {
+    const tokens = await this.prismaService.refreshToken.findMany({
+      select: {
+        id: true,
+      },
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: limit,
+    });
+
+    if (tokens.length) {
+      await this.prismaService.refreshToken.deleteMany({
+        where: {
+          id: {
+            in: tokens.map(token => token.id),
+          },
+        },
+      });
+    }
+  }
 }
