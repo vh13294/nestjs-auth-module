@@ -4,7 +4,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { IUserService } from './interfaces/user-service.interface';
 import { CreateUserDto } from './interfaces/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
+import { USER_SERVICE_INTERFACE } from './auth.constants';
 import { nanoid } from 'nanoid';
 import { Cookies } from './interfaces/auth-request.interface';
 
@@ -36,14 +36,6 @@ export class AuthService {
     if (!isPasswordMatching) {
       throw new BadRequestException('Wrong credentials provided');
     }
-  }
-
-  private signPayloadToken(
-    payload: TokenPayload,
-    option: JwtSignOptions,
-  ): string {
-    const token = this.jwtService.sign(payload, option);
-    return token;
   }
 
   private async setCurrentRefreshToken(
@@ -83,7 +75,7 @@ export class AuthService {
   }
 
   getAccessTokenCookieHeader(userId: number) {
-    const token = this.signPayloadToken(
+    const token = this.jwtService.sign(
       { userId },
       {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -102,7 +94,7 @@ export class AuthService {
   }
 
   async generateRefreshToken(userId: number, deviceId: string) {
-    const token = this.signPayloadToken(
+    const token = this.jwtService.sign(
       { userId },
       {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -167,6 +159,10 @@ export class AuthService {
 
   async removeRefreshToken(deviceId: string, userId: number) {
     await this.userService.removeRefreshToken(deviceId, userId);
+  }
+
+  async removeAllRefreshTokensOfUser(userId: number) {
+    await this.userService.removeAllRefreshTokensOfUser(userId);
   }
 
   async getUserById(userId: number) {

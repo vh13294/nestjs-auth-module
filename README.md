@@ -39,7 +39,6 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 - Add ? Role authorization??
 - Social Login (passport fb, google)
 - Set a max refreshToken per user (10 maybe?) delete the oldest, before adding a new one?
-- Add Logout all devices
 - Add unit test in sample (for controller flows?)
 - Handle when refresh-token expires (or no longer exist) update cookie header? logout?
 - Handle when access-token expires, by rotating token?
