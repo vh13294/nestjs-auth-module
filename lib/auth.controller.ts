@@ -58,7 +58,7 @@ export class AuthController {
   async refresh(@Req() req: AuthRequest, @Res() res: Response) {
     const { user, cookies } = req;
 
-    const newCookies = await this.authService.renewAccessTokenAndResetMaxAge(
+    const newCookies = await this.authService.renewAccessToken(
       cookies,
       user.id,
     );

@@ -23,7 +23,7 @@ AuthModule.forRoot(authModuleOptions(), UserService),
 
 ## Refresh token inactive policy
 - Refresh Token Cookie Max-Age will be used as inactive time, 
-  It will be reset when issuing new access-token
+  It will be reset when issuing new access-token,
 
 - Absolute life time time will be stored in jwt.signToken(), which will be validated in Strategy
 

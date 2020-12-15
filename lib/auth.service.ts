@@ -189,13 +189,13 @@ export class AuthService {
     return Object.values(cookies).some((cookie) => !!cookie);
   }
 
-  async renewAccessTokenAndResetMaxAge(cookies: Cookies, userId: number) {
+  async renewAccessToken(cookies: Cookies, userId: number) {
     const accessCookie = this.getAccessTokenCookieHeader(userId);
-
-    // Reset Max Age
     const refreshCookie = this.getRefreshTokenCookieHeader(cookies.Refresh);
     const deviceIdCookie = this.getDeviceIdCookieHeader(cookies.DeviceId);
 
+    // sending the same cookie will re-evaluate max-age
+    // => Increase inactive time
     return [accessCookie, refreshCookie, deviceIdCookie];
   }
 }
