@@ -41,7 +41,7 @@ export class UserServiceImplForAuth implements IUserService {
     throw new NotFoundException('User with this email does not exist');
   }
 
-  async setRefreshToken(
+  async createRefreshToken(
     refreshToken: string,
     deviceId: string,
     userId: number,

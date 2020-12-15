@@ -1,7 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { Request } from 'express';
 import { AuthService } from '../auth.service';
 import { AuthRequest } from '../interfaces/auth-request.interface';
 
@@ -15,8 +14,8 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
       passReqToCallback: true,
       secretOrKey: process.env.JWT_REFRESH_TOKEN_SECRET,
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          return request?.cookies?.Refresh;
+        (request) => {
+          return (request as AuthRequest).cookies.Refresh;
         },
       ]),
     });

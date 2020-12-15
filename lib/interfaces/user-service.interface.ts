@@ -7,7 +7,7 @@ export interface IUserService {
   getUserById(userId: number): Promise<QueryUserDto>;
   getUserByEmail(email: string): Promise<QueryUserDto>;
 
-  setRefreshToken(
+  createRefreshToken(
     token: string,
     deviceId: string,
     userId: number,

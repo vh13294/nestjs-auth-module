@@ -39,13 +39,13 @@ export class AuthService {
     }
   }
 
-  private async setCurrentRefreshToken(
+  private async addNewRefreshToken(
     refreshToken: string,
     deviceId: string,
     userId: number,
   ) {
     const hashedToken = await hash(refreshToken, 10);
-    await this.userService.setRefreshToken(hashedToken, deviceId, userId);
+    await this.userService.createRefreshToken(hashedToken, deviceId, userId);
   }
 
   async register(registrationData: CreateUserDto) {
@@ -75,14 +75,14 @@ export class AuthService {
     }
   }
 
-  getAccessTokenCookieHeader(userId: number) {
-    const token = this.jwtService.sign(
-      { userId },
-      {
-        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE}m`,
-      },
-    );
+  getAccessTokenCookie(userId: number) {
+    const payload: TokenPayload = { userId };
+    const options: JwtSignOptions = {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE}m`,
+    };
+
+    const token = this.jwtService.sign(payload, options);
     return generateCookie(
       COOKIE_KEYS.Authentication,
       token,
@@ -91,19 +91,18 @@ export class AuthService {
   }
 
   async generateRefreshToken(userId: number, deviceId: string) {
-    const token = this.jwtService.sign(
-      { userId },
-      {
-        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY}d`,
-      },
-    );
+    const payload: TokenPayload = { userId };
+    const options: JwtSignOptions = {
+      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      expiresIn: `${process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY}d`,
+    };
 
-    await this.setCurrentRefreshToken(token, deviceId, userId);
+    const token = this.jwtService.sign(payload, options);
+    await this.addNewRefreshToken(token, deviceId, userId);
     return token;
   }
 
-  getRefreshTokenCookieHeader(token: string) {
+  getRefreshTokenCookie(token: string) {
     return generateCookie(
       COOKIE_KEYS.Refresh,
       token,
@@ -116,7 +115,7 @@ export class AuthService {
     return nanoid();
   }
 
-  getDeviceIdCookieHeader(deviceId: string) {
+  getDeviceIdCookie(deviceId: string) {
     return generateCookie(
       COOKIE_KEYS.DeviceId,
       deviceId,
@@ -163,21 +162,21 @@ export class AuthService {
     const deviceId = this.generateDeviceId();
     const refreshToken = await this.generateRefreshToken(userId, deviceId);
 
-    const accessCookie = this.getAccessTokenCookieHeader(userId);
-    const refreshCookie = this.getRefreshTokenCookieHeader(refreshToken);
-    const deviceIdCookie = this.getDeviceIdCookieHeader(deviceId);
+    const accessCookie = this.getAccessTokenCookie(userId);
+    const refreshCookie = this.getRefreshTokenCookie(refreshToken);
+    const deviceIdCookie = this.getDeviceIdCookie(deviceId);
 
     return [accessCookie, refreshCookie, deviceIdCookie];
   }
 
-  checkIfCookieHeaderPresented(cookies: Cookies) {
+  checkIfCookiePresented(cookies: Cookies) {
     return Object.values(cookies).some((cookie) => !!cookie);
   }
 
   async renewAccessToken(cookies: Cookies, userId: number) {
-    const accessCookie = this.getAccessTokenCookieHeader(userId);
-    const refreshCookie = this.getRefreshTokenCookieHeader(cookies.Refresh);
-    const deviceIdCookie = this.getDeviceIdCookieHeader(cookies.DeviceId);
+    const accessCookie = this.getAccessTokenCookie(userId);
+    const refreshCookie = this.getRefreshTokenCookie(cookies.Refresh);
+    const deviceIdCookie = this.getDeviceIdCookie(cookies.DeviceId);
 
     // sending the same cookie will re-evaluate max-age
     // => Increase inactive time
