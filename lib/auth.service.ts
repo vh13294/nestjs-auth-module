@@ -49,17 +49,17 @@ export class AuthService {
   }
 
   async register(registrationData: CreateUserDto) {
-    const hashedPassword = await hash(registrationData.password, 10);
-    registrationData.password = hashedPassword;
-
     try {
+      const hashedPassword = await hash(registrationData.password, 10);
+      registrationData.password = hashedPassword;
+
       const { password, ...user } = await this.userService.createUser(
         registrationData,
       );
       return user;
     } catch (error) {
       // todo proper error message? email already exist?
-      throw new BadRequestException(error);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -71,7 +71,7 @@ export class AuthService {
       await this.verifyPassword(plainTextPassword, password);
       return user;
     } catch (error) {
-      throw new BadRequestException(error);
+      throw new BadRequestException(error.message);
     }
   }
 

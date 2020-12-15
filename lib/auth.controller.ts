@@ -24,6 +24,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registrationData: CreateUserDto) {
+    // todo add dto validation ? empty email/password/name/ valid email address?
     return this.authService.register(registrationData);
   }
 
