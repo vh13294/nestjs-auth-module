@@ -42,7 +42,7 @@ export class AuthController {
       const loginCookie = await this.authService.generateLoginCookie(user.id);
 
       res.setHeader('Set-Cookie', loginCookie);
-      return res.send(200);
+      return res.sendStatus(200);
     }
   }
 
@@ -78,6 +78,6 @@ export class AuthController {
     );
 
     res.setHeader('Set-Cookie', newCookies);
-    return res.send(user);
+    return res.sendStatus(200);
   }
 }

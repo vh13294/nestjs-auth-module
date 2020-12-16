@@ -7,38 +7,29 @@ export class UserServiceImplForAuth implements IUserService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createUser(user: CreateUserDto) {
-    const newUser = await this.prismaService.user.create({
+    return await this.prismaService.user.create({
       data: {
         name: user.name,
         email: user.email,
         password: user.password,
       },
     });
-    return newUser;
   }
 
   async getUserById(id: number) {
-    const user = await this.prismaService.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: {
         id: id,
       },
     });
-    if (user) {
-      return user;
-    }
-    throw new NotFoundException('User with this id does not exist');
   }
 
   async getUserByEmail(email: string) {
-    const user = await this.prismaService.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: {
         email: email,
       },
     });
-    if (user) {
-      return user;
-    }
-    throw new NotFoundException('User with this email does not exist');
   }
 
   async createRefreshToken(
