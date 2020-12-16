@@ -1,12 +1,20 @@
 import { hash, compare } from 'bcrypt';
-
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { IUserService } from './interfaces/user-service.interface';
 import { CreateUserDto } from './interfaces/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { USER_SERVICE_INTERFACE } from './auth.constants';
 import { nanoid } from 'nanoid';
-import { Cookies, COOKIE_KEYS } from './interfaces/auth-request.interface';
+import {
+  Cookies,
+  COOKIE_KEYS,
+  UserInRequest,
+} from './interfaces/auth-request.interface';
 import { generateCookie } from './helpers/cookie-generator';
 
 @Injectable()
@@ -33,7 +41,7 @@ export class AuthService {
   private async verifyPassword(
     plainTextPassword: string,
     hashedPassword: string,
-  ) {
+  ): Promise<void> {
     const isPasswordMatching = await compare(plainTextPassword, hashedPassword);
     if (!isPasswordMatching) {
       throw new BadRequestException('Wrong credentials provided');
@@ -44,7 +52,7 @@ export class AuthService {
     refreshToken: string,
     deviceId: string,
     userId: number,
-  ) {
+  ): Promise<void> {
     const hashedToken = await hash(refreshToken, 10);
     await this.userService.createRefreshToken(hashedToken, deviceId, userId);
 
@@ -54,34 +62,60 @@ export class AuthService {
     );
   }
 
-  async register(registrationData: CreateUserDto) {
+  async register(registrationData: CreateUserDto): Promise<void> {
     try {
       const hashedPassword = await hash(registrationData.password, 10);
       registrationData.password = hashedPassword;
-
-      const { password, ...user } = await this.userService.createUser(
-        registrationData,
-      );
-      return user;
+      await this.userService.createUser(registrationData);
     } catch (error) {
       // todo proper error message? email already exist?
       throw new BadRequestException(error.message);
     }
   }
 
-  async getAuthenticatedUser(email: string, plainTextPassword: string) {
+  async localStrategy(
+    email: string,
+    plainTextPassword: string,
+  ): Promise<UserInRequest> {
     try {
-      const { password, ...user } = await this.userService.getUserByEmail(
-        email,
-      );
-      await this.verifyPassword(plainTextPassword, password);
-      return user;
+      const user = await this.userService.getUserByEmail(email);
+      await this.verifyPassword(plainTextPassword, user.password);
+      return {
+        id: user.id,
+        email: user.email,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  getAccessTokenCookie(userId: number) {
+  async jwtAccessStrategy(userId: number): Promise<UserInRequest> {
+    const user = await this.userService.getUserById(userId);
+    return {
+      id: user.id,
+      email: user.email,
+    };
+  }
+
+  async jwtRefreshStrategy(
+    incomingToken: string,
+    deviceId: string,
+    userId: number,
+  ): Promise<UserInRequest> {
+    const hashToken = await this.userService.getRefreshToken(deviceId, userId);
+    const isTokenMatched = compare(incomingToken, hashToken);
+    if (isTokenMatched) {
+      const user = await this.userService.getUserById(userId);
+      return {
+        id: user.id,
+        email: user.email,
+      };
+    } else {
+      throw new ForbiddenException('Invalid token');
+    }
+  }
+
+  getAccessTokenCookie(userId: number): string {
     const payload: TokenPayload = { userId };
     const options: JwtSignOptions = {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -96,7 +130,10 @@ export class AuthService {
     );
   }
 
-  async generateRefreshToken(userId: number, deviceId: string) {
+  async generateRefreshToken(
+    userId: number,
+    deviceId: string,
+  ): Promise<string> {
     const payload: TokenPayload = { userId };
     const options: JwtSignOptions = {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -108,7 +145,7 @@ export class AuthService {
     return token;
   }
 
-  getRefreshTokenCookie(token: string) {
+  getRefreshTokenCookie(token: string): string {
     return generateCookie(
       COOKIE_KEYS.Refresh,
       token,
@@ -117,11 +154,11 @@ export class AuthService {
     );
   }
 
-  generateDeviceId() {
+  generateDeviceId(): string {
     return nanoid();
   }
 
-  getDeviceIdCookie(deviceId: string) {
+  getDeviceIdCookie(deviceId: string): string {
     return generateCookie(
       COOKIE_KEYS.DeviceId,
       deviceId,
@@ -130,7 +167,7 @@ export class AuthService {
     );
   }
 
-  public getCookiesForLogOut() {
+  public getCookiesForLogOut(): string[] {
     return [
       generateCookie(COOKIE_KEYS.Authentication, '', 0),
       generateCookie(COOKIE_KEYS.Refresh, '', 0),
@@ -138,33 +175,15 @@ export class AuthService {
     ];
   }
 
-  async getUserIfRefreshTokenMatches(
-    incomingToken: string,
-    deviceId: string,
-    userId: number,
-  ) {
-    const hashToken = await this.userService.getRefreshToken(deviceId, userId);
-    const isTokenMatched = compare(incomingToken, hashToken);
-    if (isTokenMatched) {
-      const { password, ...user } = await this.userService.getUserById(userId);
-      return user;
-    }
-  }
-
-  async removeRefreshToken(deviceId: string, userId: number) {
+  async removeRefreshToken(deviceId: string, userId: number): Promise<void> {
     await this.userService.removeRefreshToken(deviceId, userId);
   }
 
-  async removeAllRefreshTokensOfUser(userId: number) {
+  async removeAllRefreshTokensOfUser(userId: number): Promise<void> {
     await this.userService.removeAllRefreshTokensOfUser(userId);
   }
 
-  async getUserById(userId: number) {
-    const { password, ...user } = await this.userService.getUserById(userId);
-    return user;
-  }
-
-  async generateLoginCookie(userId: number) {
+  async generateLoginCookie(userId: number): Promise<string[]> {
     const deviceId = this.generateDeviceId();
     const refreshToken = await this.generateRefreshToken(userId, deviceId);
 
@@ -175,11 +194,11 @@ export class AuthService {
     return [accessCookie, refreshCookie, deviceIdCookie];
   }
 
-  checkIfCookiePresented(cookies: Cookies) {
+  checkIfCookiePresented(cookies: Cookies): boolean {
     return Object.values(cookies).some((cookie) => !!cookie);
   }
 
-  async renewAccessToken(cookies: Cookies, userId: number) {
+  async renewAccessToken(cookies: Cookies, userId: number): Promise<string[]> {
     const accessCookie = this.getAccessTokenCookie(userId);
     const refreshCookie = this.getRefreshTokenCookie(cookies.Refresh);
     const deviceIdCookie = this.getDeviceIdCookie(cookies.DeviceId);

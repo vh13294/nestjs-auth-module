@@ -23,9 +23,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() registrationData: CreateUserDto) {
+  async register(@Body() userData: CreateUserDto, @Res() res: Response) {
     // todo add dto validation ? empty email/password/name/ valid email address?
-    return this.authService.register(registrationData);
+    await this.authService.register(userData);
+    return res.sendStatus(201);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -41,7 +42,7 @@ export class AuthController {
       const loginCookie = await this.authService.generateLoginCookie(user.id);
 
       res.setHeader('Set-Cookie', loginCookie);
-      return res.send(user);
+      return res.send(200);
     }
   }
 

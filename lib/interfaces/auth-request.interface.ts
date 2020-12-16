@@ -1,11 +1,13 @@
 import { Request } from 'express';
 
 export interface AuthRequest extends Request {
-  user: {
-    id: number;
-    email: string;
-  };
+  user: UserInRequest;
   cookies: Cookies;
+}
+
+export interface UserInRequest {
+  id: number;
+  email: string;
 }
 
 export interface Cookies {
