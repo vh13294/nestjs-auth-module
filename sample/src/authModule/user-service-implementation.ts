@@ -92,7 +92,7 @@ export class UserServiceImplForAuth implements IUserService {
       await this.prismaService.refreshToken.deleteMany({
         where: {
           id: {
-            in: tokens.map(token => token.id),
+            in: tokens.map((token) => token.id),
           },
         },
       });

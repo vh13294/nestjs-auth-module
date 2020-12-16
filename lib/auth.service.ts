@@ -15,7 +15,11 @@ import {
   COOKIE_KEYS,
   UserInRequest,
 } from './interfaces/auth-request.interface';
-import { generateCookie } from './helpers/cookie-generator';
+import {
+  dayToSecond,
+  generateCookie,
+  minuteToSecond,
+} from './helpers/cookie-generator';
 
 @Injectable()
 export class AuthService {
@@ -126,7 +130,7 @@ export class AuthService {
     return generateCookie(
       COOKIE_KEYS.Authentication,
       token,
-      Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE) * 60,
+      minuteToSecond(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE),
     );
   }
 
@@ -149,8 +153,7 @@ export class AuthService {
     return generateCookie(
       COOKIE_KEYS.Refresh,
       token,
-      Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
-        86400,
+      dayToSecond(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY),
     );
   }
 
@@ -162,8 +165,7 @@ export class AuthService {
     return generateCookie(
       COOKIE_KEYS.DeviceId,
       deviceId,
-      Number(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY) *
-        86400,
+      dayToSecond(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY),
     );
   }
 
