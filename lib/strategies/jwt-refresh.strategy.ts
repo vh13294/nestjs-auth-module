@@ -3,6 +3,7 @@ import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { AuthRequest } from '../interfaces/auth-request.interface';
+import { TokenPayload } from '../interfaces/token-payload.interface';
 
 const JWT_REFRESH_TOKEN = 'jwt-refresh-token';
 

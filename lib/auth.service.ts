@@ -20,6 +20,7 @@ import {
   generateCookie,
   minuteToSecond,
 } from './helpers/cookie-generator';
+import { TokenPayload } from './interfaces/token-payload.interface';
 
 @Injectable()
 export class AuthService {

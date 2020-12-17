@@ -1,13 +1,11 @@
-export * from './auth.module';
+export { AuthModule } from './auth.module';
 
-export * from './auth.constants';
+export { AuthModuleOption } from './interfaces/auth-option.interface';
+export { IUserService } from './interfaces/user-service.interface';
+export { CreateUserDto }  from './interfaces/create-user.dto';
 
-export * from './interfaces/auth-option.interface';
-export * from './interfaces/user-service.interface';
-export * from './interfaces/create-user.dto';
+export { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
+export { JwtAuthRefreshGuard } from './strategies/jwt-refresh.strategy';
+export { LocalAuthGuard } from './strategies/local.strategy';
 
-export * from './strategies/jwt-access.strategy';
-export * from './strategies/jwt-refresh.strategy';
-export * from './strategies/local.strategy';
-
-export * from './auth.service';
+export { AuthService } from './auth.service';
