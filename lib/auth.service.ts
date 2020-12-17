@@ -102,13 +102,10 @@ export class AuthService {
   }
 
   async jwtRefreshStrategy(
-    incomingToken: string,
-    deviceId: string,
+    cookies: Cookies,
     userId: number,
   ): Promise<UserInRequest> {
-    const hashToken = await this.userService.getRefreshToken(deviceId, userId);
-    const isTokenMatched = compare(incomingToken, hashToken);
-    if (isTokenMatched) {
+    if (this.isRefreshTokenMatched(cookies, userId)) {
       const user = await this.userService.getUserById(userId);
       return {
         id: user.id,
@@ -117,6 +114,18 @@ export class AuthService {
     } else {
       throw new ForbiddenException('Invalid token');
     }
+  }
+
+  async isRefreshTokenMatched(
+    cookies: Cookies,
+    userId: number,
+  ): Promise<boolean> {
+    const hashToken = await this.userService.getRefreshToken(
+      cookies.DeviceId,
+      userId,
+    );
+    const isTokenMatched = compare(cookies.Refresh, hashToken);
+    return isTokenMatched;
   }
 
   getAccessTokenCookie(userId: number): string {
@@ -194,10 +203,6 @@ export class AuthService {
     const deviceIdCookie = this.getDeviceIdCookie(deviceId);
 
     return [accessCookie, refreshCookie, deviceIdCookie];
-  }
-
-  checkIfCookiePresented(cookies: Cookies): boolean {
-    return Object.values(cookies).some((cookie) => !!cookie);
   }
 
   async renewAccessToken(cookies: Cookies, userId: number): Promise<string[]> {

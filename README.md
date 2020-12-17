@@ -9,10 +9,13 @@ import * as cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
 
+## Usage
 ```typescript
-class UserService implements IUserService
+class UserServiceImplForAuth implements IUserService
 
-AuthModule.forRoot(authModuleOptions(), UserService),
+AuthModule.forRoot({
+  userServiceImplementation: UserServiceImplForAuth
+}),
 ```
 
 ```ENV
@@ -24,23 +27,60 @@ JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY=14
 JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
 ```
 
+
 ## Refresh token inactive policy
 - Refresh Token Cookie Max-Age will be used as inactive time, 
   It will be reset when issuing new access-token,
 
-- Absolute life time time will be stored in jwt.signToken(), which will be validated in Strategy
+- Absolute life time time will be stored in jwt.signToken(),
+  which will be validated in Strategy
 
 
 ## Front-end handling
-- Avoid or block login page while Authorization Header is present
+- On page load, that point to open route
+  + get User obj using access token if valid set global state login=true
+  + otherwise set login=false
+- On page load, that point to protected route
+  + check access token, then refresh token, 
+  + Redirect to login if 401
+  + typically handle by front end router
+- Avoid or block login page global state login=true
 
 
 ## Back-end handling
 - Run cronjob to clean expired refreshToken based on (createdAt)
 
+
+## Auth Flow
+### Register
+### Login (return cookies)
+- For web cookies header automatically attach to request
+- For mobile/flutter, we have to manually save cookie to sharePreference 
+  And add it too cookie via plugin
+### Access Token Invalid (401)
+- Call to renew Token which return new access token,
+  and reset max-age of refresh Token
+- Clear global state login=false
+- If request token is valid, return new cookie, set login=true
+### Refresh Token Invalid (401)
+- Redirect front-end to login page
+### User Access Forbidden resource (403)
+- Ex: User view manager Inventory
+- Handling? Show error message and no redirect!
+
+## Avoid 401 Loop
+- We might need two instance of http client (avoid clashing interceptor)
+  + User use Http1 to access protected route, but access token is expired (401)
+  + Interceptor of Http1 is trigger
+  + Http1 call to renew access token using refresh token
+  + However refresh token is also invalid (401)
+  + If we use Http1 instance we get in 401 Loop
+
+- Solution
+  + Using Http2 to renew token, if 401 occur redirect to login page
+  + Pause all Http1 instance or lock until Http2 is resolved
+
 ## TODO
 - Add ? Role authorization??
 - Social Login (passport fb, google)
 - Add unit test in sample (for controller flows?)
-- Handle when refresh-token expires (or no longer exist) update cookie header? logout?
-- Handle when access-token expires, by rotating token?

@@ -34,9 +34,7 @@ export class AuthController {
   async logIn(@Req() req: AuthRequest, @Res() res: Response) {
     const { user, cookies } = req;
 
-    if (this.authService.checkIfCookiePresented(cookies)) {
-      // todo what if you have invalid cookies?, and re-authenticated,
-      // shall front end get empty cookie first before re-direct to login page?
+    if (this.authService.isRefreshTokenMatched(cookies, user.id)) {
       throw new MethodNotAllowedException('The user is already logged in');
     } else {
       const loginCookie = await this.authService.generateLoginCookie(user.id);
