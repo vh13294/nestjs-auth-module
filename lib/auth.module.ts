@@ -1,13 +1,6 @@
-import {
-  ClassProvider,
-  DynamicModule,
-  Global,
-  Module,
-  Type,
-  ValueProvider,
-} from '@nestjs/common';
+import { ClassProvider, DynamicModule, Global, Module } from '@nestjs/common';
 import { AuthModuleOption } from './interfaces/auth-option.interface';
-import { AUTH_MODULE_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
+import { USER_SERVICE_INTERFACE } from './auth.constants';
 import { AuthService } from './auth.service';
 import { IUserService } from '.';
 import { PassportModule } from '@nestjs/passport';

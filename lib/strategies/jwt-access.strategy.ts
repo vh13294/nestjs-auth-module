@@ -1,13 +1,15 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
+import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { AuthRequest } from '../interfaces/auth-request.interface';
 
+const JWT_ACCESS_TOKEN = 'jwt-access-token';
+
 @Injectable()
 export class JwtAccessTokenStrategy extends PassportStrategy(
   Strategy,
-  'jwt-access-token',
+  JWT_ACCESS_TOKEN,
 ) {
   constructor(private readonly authService: AuthService) {
     super({
@@ -24,3 +26,6 @@ export class JwtAccessTokenStrategy extends PassportStrategy(
     return this.authService.jwtAccessStrategy(payload.userId);
   }
 }
+
+@Injectable()
+export class JwtAuthAccessGuard extends AuthGuard(JWT_ACCESS_TOKEN) {}

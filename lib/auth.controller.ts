@@ -4,19 +4,18 @@ import {
   Body,
   UseGuards,
   Res,
-  Get,
   Req,
   MethodNotAllowedException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { CreateUserDto } from './interfaces/create-user.dto';
 
 import { AuthService } from './auth.service';
-
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthAccessGuard } from './guards/jwt-auth-access.guard';
-import { JwtAuthRefreshGuard } from './guards/jwt-auth-refresh.guard';
+import { CreateUserDto } from './interfaces/create-user.dto';
 import { AuthRequest } from './interfaces/auth-request.interface';
+
+import { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
+import { JwtAuthRefreshGuard } from './strategies/jwt-refresh.strategy';
+import { LocalAuthGuard } from './strategies/local.strategy';
 
 @Controller('auth')
 export class AuthController {
