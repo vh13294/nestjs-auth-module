@@ -6,11 +6,12 @@ import {
   Res,
   Req,
   MethodNotAllowedException,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 
 import { AuthService } from './auth.service';
-import { CreateUserDto } from './interfaces/create-user.dto';
+import { CreateUserDto } from './validators/create-user.dto';
 import { AuthRequest } from './interfaces/auth-request.interface';
 
 import { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
@@ -22,8 +23,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() userData: CreateUserDto, @Res() res: Response) {
-    // todo add dto validation ? empty email/password/name/ valid email address?
+  async register(
+    @Body(new ValidationPipe()) userData: CreateUserDto,
+    @Res() res: Response,
+  ) {
     await this.authService.register(userData);
     return res.sendStatus(201);
   }

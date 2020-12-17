@@ -1,4 +1,4 @@
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from '../validators/create-user.dto';
 import { QueryUserDto } from './query-user.dto';
 
 export interface IUserService {

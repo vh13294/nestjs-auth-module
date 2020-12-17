@@ -2,7 +2,7 @@ export { AuthModule } from './auth.module';
 
 export { AuthModuleOption } from './interfaces/auth-option.interface';
 export { IUserService } from './interfaces/user-service.interface';
-export { CreateUserDto }  from './interfaces/create-user.dto';
+export { CreateUserDto } from './validators/create-user.dto';
 
 export { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
 export { JwtAuthRefreshGuard } from './strategies/jwt-refresh.strategy';

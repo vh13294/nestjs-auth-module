@@ -6,7 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { IUserService } from './interfaces/user-service.interface';
-import { CreateUserDto } from './interfaces/create-user.dto';
+import { CreateUserDto } from './validators/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { USER_SERVICE_INTERFACE } from './auth.constants';
 import { nanoid } from 'nanoid';
@@ -67,13 +67,15 @@ export class AuthService {
     );
   }
 
-  async register(registrationData: CreateUserDto): Promise<void> {
+  async register(createUserData: CreateUserDto): Promise<void> {
     try {
-      const hashedPassword = await hash(registrationData.password, 10);
-      registrationData.password = hashedPassword;
-      await this.userService.createUser(registrationData);
+      const hashedPassword = await hash(createUserData.password, 10);
+      createUserData.password = hashedPassword;
+      await this.userService.createUser(createUserData);
     } catch (error) {
-      // todo proper error message? email already exist?
+      // todo proper error message? 
+      // email already exist?
+      // when db is offline do not expose url
       throw new BadRequestException(error.message);
     }
   }
