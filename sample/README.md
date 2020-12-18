@@ -27,3 +27,8 @@ npx prisma migrate reset // needed when push is blocked
 
 ## Docker
 docker-compose up -d
+
+
+## Test FB login https
+npm install --save @nestjs/serve-static
+https only work in safari 

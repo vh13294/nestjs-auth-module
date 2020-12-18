@@ -11,4 +11,4 @@ import { RegisterModule } from './registerModule/register.module';
     AuthModule.forRoot(authModuleOptions()),
   ],
 })
-export class AppModule {}
+export class ServerModule {}

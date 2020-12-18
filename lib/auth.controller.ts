@@ -8,7 +8,7 @@ import {
   MethodNotAllowedException,
   ValidationPipe,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './validators/create-user.dto';
@@ -17,6 +17,7 @@ import { AuthRequest } from './interfaces/auth-request.interface';
 import { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
 import { JwtAuthRefreshGuard } from './strategies/jwt-refresh.strategy';
 import { LocalAuthGuard } from './strategies/local.strategy';
+import { FacebookGuard, FacebookRequest } from './strategies/facebook-token.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -28,6 +29,13 @@ export class AuthController {
     @Res() res: Response,
   ) {
     await this.authService.register(userData);
+    return res.sendStatus(201);
+  }
+
+  @UseGuards(FacebookGuard)
+  @Post('register-via-facebook')
+  async registerFacebook(@Req() req: FacebookRequest, @Res() res: Response) {
+    console.log(req.user.emails[0].value)
     return res.sendStatus(201);
   }
 

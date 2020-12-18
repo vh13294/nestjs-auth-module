@@ -73,7 +73,7 @@ export class AuthService {
       createUserData.password = hashedPassword;
       await this.userService.createUser(createUserData);
     } catch (error) {
-      // todo proper error message? 
+      // todo proper error message?
       // email already exist?
       // when db is offline do not expose url
       throw new BadRequestException(error.message);

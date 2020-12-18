@@ -83,4 +83,6 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
 ## TODO
 - Add ? Role authorization??
 - Social Login (passport fb, google)
+  + Sign up first, get name, email, ..., set optional password?
+  + Then sign in, via local auth or facebook?
 - Add unit test in sample (for controller flows?)

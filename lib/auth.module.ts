@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { JwtAccessTokenStrategy } from './strategies/jwt-access.strategy';
 import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { FacebookStrategy } from './strategies/facebook-token.strategy';
 
 @Global()
 @Module({})
@@ -29,6 +30,7 @@ export class AuthModule {
         JwtAccessTokenStrategy,
         JwtRefreshTokenStrategy,
         LocalStrategy,
+        FacebookStrategy,
       ],
       // Should we expose this service?
       // exports: [AuthService],
