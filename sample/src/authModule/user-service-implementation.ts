@@ -108,10 +108,10 @@ export class UserServiceImplForAuth implements IUserService {
       where: {
         userId: userId,
         socialId: socialId,
-      }
-    })
+      },
+    });
 
-    return !!social
+    return !!social;
   }
 
   async createUserViaFacebook(
@@ -130,7 +130,7 @@ export class UserServiceImplForAuth implements IUserService {
           create: {
             provider: 'FACEBOOK',
             socialId: socialId,
-          }
+          },
         },
       },
     });

@@ -216,7 +216,7 @@ export class AuthService {
 
   async getUserByEmail(email: string): Promise<number> {
     const user = await this.userService.getUserByEmail(email);
-    return user.id;
+    return user?.id;
   }
 
   async doesUserHaveFacebookId(

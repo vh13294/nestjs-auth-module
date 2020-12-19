@@ -96,6 +96,9 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
   + Password should be empty
   + if success, return jwt cookies
 
+- For FB, InternalOAuthError: Failed to fetch user profile, usually mean incorrect appKey/appID
+
+
 ## TODO
 - Add ? Role authorization??
 - Add unit test in sample (for controller flows?)

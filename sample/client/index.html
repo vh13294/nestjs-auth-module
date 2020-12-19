@@ -22,21 +22,42 @@
             js.src = "https://connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
-
-        function checkLoginState() {
-            FB.getLoginStatus(function (response) {
-                console.log(response);
-                console.log(response.authResponse);
-                console.log(response.authResponse.accessToken);
-            });
-        }
     </script>
 </head>
 
 <body>
     <p>This is an example of a simple HTML page with one paragraph.</p>
-    <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-    </fb:login-button>
+
+    <button onclick="continueFB();">Continue With FB</button>
+    <script>
+        function continueFB() {
+            console.log('yes')
+            FB.login(callServer, { scope: 'public_profile,email' });
+        }
+
+        function callServer(fbRes) {
+            console.log(fbRes)
+            const url = new URL('https://localhost:3000/auth/continue-with-facebook')
+            const params = {
+                access_token: fbRes.authResponse.accessToken
+            }
+            url.search = new URLSearchParams(params).toString();
+            fetch(url, { method: 'POST' })
+                .then(function (res) {
+                    if (!res.ok) {
+                        res.json().then(obj => {
+                            console.log(obj)
+                            throw new Error(obj.message)
+                        })
+                    }
+                    return res;
+                }).then(function (res) {
+                    console.log('ok');
+                }).catch(function (error) {
+                    console.log(error);
+                });
+        }
+    </script>
 </body>
 
 </html>
