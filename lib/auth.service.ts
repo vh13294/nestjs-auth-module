@@ -208,7 +208,7 @@ export class AuthService {
     return [accessCookie, refreshCookie, deviceIdCookie];
   }
 
-  async renewAccessToken(cookies: Cookies, userId: number): Promise<string[]> {
+  renewAccessToken(cookies: Cookies, userId: number): string[] {
     const accessCookie = this.getAccessTokenCookie(userId);
     const refreshCookie = this.getRefreshTokenCookie(cookies.Refresh);
     const deviceIdCookie = this.getDeviceIdCookie(cookies.DeviceId);
@@ -216,5 +216,35 @@ export class AuthService {
     // sending the same cookie will re-evaluate max-age
     // => Increase inactive time
     return [accessCookie, refreshCookie, deviceIdCookie];
+  }
+
+  async getUserByEmail(email: string): Promise<number> {
+    const user = await this.userService.getUserByEmail(email);
+    return user.id;
+  }
+
+  async doesUserHaveFacebookId(
+    profileId: string,
+    userId: number,
+  ): Promise<boolean> {
+    return await this.userService.doesFacebookIdExist(profileId, userId);
+  }
+
+  async registerUserViaFacebook(
+    firstName: string,
+    lastName: string,
+    email: string,
+    socialId: string,
+  ): Promise<void> {
+    try {
+      await this.userService.createUserViaFacebook(
+        firstName,
+        lastName,
+        email,
+        socialId,
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

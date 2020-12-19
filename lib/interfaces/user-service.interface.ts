@@ -20,4 +20,12 @@ export interface IUserService {
     userId: number,
     limit: number,
   ): Promise<void>;
+
+  doesFacebookIdExist(socialId: string, userId: number): Promise<boolean>;
+  createUserViaFacebook(
+    firstName: string,
+    lastName: string,
+    email: string,
+    socialId: string,
+  ): Promise<boolean>;
 }

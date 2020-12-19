@@ -17,7 +17,10 @@ import { AuthRequest } from './interfaces/auth-request.interface';
 import { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
 import { JwtAuthRefreshGuard } from './strategies/jwt-refresh.strategy';
 import { LocalAuthGuard } from './strategies/local.strategy';
-import { FacebookGuard, FacebookRequest } from './strategies/facebook-token.strategy';
+import {
+  FacebookGuard,
+  FacebookRequest,
+} from './strategies/facebook-token.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -33,9 +36,31 @@ export class AuthController {
   }
 
   @UseGuards(FacebookGuard)
-  @Post('register-via-facebook')
+  @Post('continue-with-facebook')
   async registerFacebook(@Req() req: FacebookRequest, @Res() res: Response) {
-    console.log(req.user.emails[0].value)
+    const { user } = req;
+    const email = user.emails[0].value;
+    const profileId = user.id;
+
+    const accountId = await this.authService.getUserByEmail(email);
+
+    if (accountId) {
+      if (!this.authService.doesUserHaveFacebookId(profileId, accountId)) {
+        throw new MethodNotAllowedException(
+          'The user registered via email not FB',
+        );
+      }
+    } else {
+      await this.authService.registerUserViaFacebook(
+        user.name.givenName,
+        user.name.familyName,
+        email,
+        profileId,
+      );
+    }
+
+    const loginCookie = await this.authService.generateLoginCookie(accountId);
+    res.setHeader('Set-Cookie', loginCookie);
     return res.sendStatus(201);
   }
 
@@ -80,10 +105,7 @@ export class AuthController {
   @Post('new-access-token')
   async refresh(@Req() req: AuthRequest, @Res() res: Response) {
     const { user, cookies } = req;
-    const newCookies = await this.authService.renewAccessToken(
-      cookies,
-      user.id,
-    );
+    const newCookies = this.authService.renewAccessToken(cookies, user.id);
 
     res.setHeader('Set-Cookie', newCookies);
     return res.sendStatus(200);

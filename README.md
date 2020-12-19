@@ -53,6 +53,7 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
 
 ## Auth Flow
 ### Register
+- Use email/password sign up
 ### Login (return cookies)
 - For web cookies header automatically attach to request
 - For mobile/flutter, we have to manually save cookie to sharePreference 
@@ -80,9 +81,23 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
   + Using Http2 to renew token, if 401 occur redirect to login page
   + Pause all Http1 instance or lock until Http2 is resolved
 
+  + Or send 403 for invalid refresh token
+
+
+## Social
+- use front-end specific SDK, web/flutter
+- Create a "Continue With FB" button, should trigger facebook login
+- Get access_token, => send it to register-via-facebook
+- Verify token, and get email
+- If email exist in db, check if user have facebookID attach in db, return jwt cookies
+- If email exist in db, but no facebookID in db, return warning ask user to use email/password instead
+- If email does not exist in db,
+  + Create new user via fb-email, names
+  + Password should be empty
+  + if success, return jwt cookies
+
 ## TODO
 - Add ? Role authorization??
-- Social Login (passport fb, google)
-  + Sign up first, get name, email, ..., set optional password?
-  + Then sign in, via local auth or facebook?
 - Add unit test in sample (for controller flows?)
+- When to return user obj
+- Inject option instead of env

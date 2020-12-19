@@ -22,6 +22,7 @@ export class FacebookStrategy extends PassportStrategy(
     super({
       clientID: '1',
       clientSecret: '1',
+      fbGraphVersion: 'v9.0',
     });
   }
 
