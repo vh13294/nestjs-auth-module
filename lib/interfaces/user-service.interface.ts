@@ -27,5 +27,5 @@ export interface IUserService {
     lastName: string,
     email: string,
     socialId: string,
-  ): Promise<boolean>;
+  ): Promise<QueryUserDto>;
 }

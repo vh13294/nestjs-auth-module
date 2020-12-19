@@ -9,7 +9,8 @@ export class UserServiceImplForAuth implements IUserService {
   async createUser(user: CreateUserDto) {
     return await this.prismaService.user.create({
       data: {
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         password: user.password,
       },
@@ -99,16 +100,39 @@ export class UserServiceImplForAuth implements IUserService {
     }
   }
 
-  doesFacebookIdExist(socialId: string, userId: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async doesFacebookIdExist(socialId: string, userId: number) {
+    const social = await this.prismaService.socialAccount.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        userId: userId,
+        socialId: socialId,
+      }
+    })
+
+    return !!social
   }
 
-  createUserViaFacebook(
+  async createUserViaFacebook(
     firstName: string,
     lastName: string,
     email: string,
     socialId: string,
-  ): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  ) {
+    return await this.prismaService.user.create({
+      data: {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: null,
+        socials: {
+          create: {
+            provider: 'FACEBOOK',
+            socialId: socialId,
+          }
+        },
+      },
+    });
   }
 }
