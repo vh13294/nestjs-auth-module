@@ -1,6 +1,6 @@
 export { AuthModule } from './auth.module';
 
-export { AuthModuleOption } from './interfaces/auth-option.interface';
+export { AuthModuleOptions } from './interfaces/auth-option.interface';
 export { IUserService } from './interfaces/user-service.interface';
 export { CreateUserDto } from './validators/create-user.dto';
 

@@ -8,7 +8,7 @@ import {
 import { IUserService } from './interfaces/user-service.interface';
 import { CreateUserDto } from './validators/create-user.dto';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { USER_SERVICE_INTERFACE } from './auth.constants';
+import { ENV_OPTIONS, USER_SERVICE_INTERFACE } from './auth.constants';
 import { nanoid } from 'nanoid';
 import {
   Cookies,
@@ -21,22 +21,18 @@ import {
   minuteToSecond,
 } from './helpers/cookie-generator';
 import { TokenPayload } from './interfaces/token-payload.interface';
+import { EnvOptions } from './interfaces/auth-option.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(ENV_OPTIONS)
+    private readonly env: EnvOptions,
     @Inject(USER_SERVICE_INTERFACE)
     private readonly userService: IUserService,
     private readonly jwtService: JwtService,
   ) {
-    const isOptionMissing = [
-      process.env.JWT_ACCESS_TOKEN_SECRET,
-      process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE,
-      process.env.JWT_REFRESH_TOKEN_SECRET,
-      process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY,
-      process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY,
-      process.env.JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED,
-    ].some((value) => !value);
+    const isOptionMissing = Object.values(this.env).some((value) => !value);
 
     if (isOptionMissing) {
       throw new Error('Missing JWT option in env');
@@ -63,7 +59,7 @@ export class AuthService {
 
     await this.userService.removeEarliestRefreshTokenIfExceedLimit(
       userId,
-      Number(process.env.JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED),
+      this.env.jwtRefreshTokenMaxNumberIssued,
     );
   }
 
@@ -134,15 +130,15 @@ export class AuthService {
   getAccessTokenCookie(userId: number): string {
     const payload: TokenPayload = { userId };
     const options: JwtSignOptions = {
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE}m`,
+      secret: this.env.jwtAccessTokenSecret,
+      expiresIn: `${this.env.jwtAccessTokenExpirationTimeMinute}m`,
     };
 
     const token = this.jwtService.sign(payload, options);
     return generateCookie(
       COOKIE_KEYS.Authentication,
       token,
-      minuteToSecond(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE),
+      minuteToSecond(this.env.jwtAccessTokenExpirationTimeMinute),
     );
   }
 
@@ -152,8 +148,8 @@ export class AuthService {
   ): Promise<string> {
     const payload: TokenPayload = { userId };
     const options: JwtSignOptions = {
-      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY}d`,
+      secret: this.env.jwtRefreshTokenSecret,
+      expiresIn: `${this.env.jwtRefreshTokenAbsoluteExpirationTimeDay}d`,
     };
 
     const token = this.jwtService.sign(payload, options);
@@ -165,7 +161,7 @@ export class AuthService {
     return generateCookie(
       COOKIE_KEYS.Refresh,
       token,
-      dayToSecond(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY),
+      dayToSecond(this.env.jwtRefreshTokenInactiveExpirationTimeDay),
     );
   }
 
@@ -177,7 +173,7 @@ export class AuthService {
     return generateCookie(
       COOKIE_KEYS.DeviceId,
       deviceId,
-      dayToSecond(process.env.JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY),
+      dayToSecond(this.env.jwtRefreshTokenInactiveExpirationTimeDay),
     );
   }
 

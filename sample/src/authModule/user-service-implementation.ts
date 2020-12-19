@@ -98,4 +98,17 @@ export class UserServiceImplForAuth implements IUserService {
       });
     }
   }
+
+  doesFacebookIdExist(socialId: string, userId: number): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+
+  createUserViaFacebook(
+    firstName: string,
+    lastName: string,
+    email: string,
+    socialId: string,
+  ): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
 }

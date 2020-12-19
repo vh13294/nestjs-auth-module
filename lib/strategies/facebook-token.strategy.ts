@@ -1,11 +1,14 @@
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import {
   ExecutionContext,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import FacebookTokenStrategy, { Profile } from 'passport-facebook-token';
 import { Request } from 'express';
+import { ENV_OPTIONS } from '../auth.constants';
+import { EnvOptions } from '../interfaces/auth-option.interface';
 
 const FB_TOKEN = 'facebook-token';
 
@@ -18,11 +21,14 @@ export class FacebookStrategy extends PassportStrategy(
   FacebookTokenStrategy,
   FB_TOKEN,
 ) {
-  constructor() {
+  constructor(
+    @Inject(ENV_OPTIONS)
+    readonly env: EnvOptions,
+  ) {
     super({
-      clientID: '1',
-      clientSecret: '1',
-      fbGraphVersion: 'v9.0',
+      clientID: env.facebookClientId,
+      clientSecret: env.facebookClientSecret,
+      fbGraphVersion: env.facebookGraphVersion,
     });
   }
 

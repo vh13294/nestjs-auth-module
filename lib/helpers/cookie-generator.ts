@@ -12,16 +12,10 @@ export function generateCookie(
   );
 }
 
-export function dayToSecond(day: string | undefined) {
-  if (day) {
-    return Number(day) * 86400;
-  }
-  return 0;
+export function dayToSecond(day: number) {
+  return day * 86400;
 }
 
-export function minuteToSecond(minute: string | undefined) {
-  if (minute) {
-    return Number(minute) * 60;
-  }
-  return 0;
+export function minuteToSecond(minute: number) {
+  return minute * 60;
 }

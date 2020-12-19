@@ -17,7 +17,6 @@ async function bootstrapServer() {
 }
 bootstrapServer();
 
-
 async function bootstrapClient() {
   const app = await NestFactory.create(ClientModule, { httpsOptions });
   await app.listen(3001);
