@@ -42,7 +42,7 @@ export class AuthController {
     const email = user.emails[0].value;
     const profileId = user.id;
 
-    const accountId = await this.authService.getUserByEmail(email);
+    let accountId = await this.authService.getUserByEmail(email);
 
     if (accountId) {
       if (!this.authService.doesUserHaveFacebookId(profileId, accountId)) {
@@ -51,7 +51,7 @@ export class AuthController {
         );
       }
     } else {
-      await this.authService.registerUserViaFacebook(
+      accountId = await this.authService.registerUserViaFacebook(
         user.name.givenName,
         user.name.familyName,
         email,

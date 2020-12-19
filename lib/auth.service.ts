@@ -214,7 +214,7 @@ export class AuthService {
     return [accessCookie, refreshCookie, deviceIdCookie];
   }
 
-  async getUserByEmail(email: string): Promise<number> {
+  async getUserByEmail(email: string): Promise<number | undefined> {
     const user = await this.userService.getUserByEmail(email);
     return user?.id;
   }
@@ -231,14 +231,15 @@ export class AuthService {
     lastName: string,
     email: string,
     socialId: string,
-  ): Promise<void> {
+  ): Promise<number> {
     try {
-      await this.userService.createUserViaFacebook(
+      const user =  await this.userService.createUserViaFacebook(
         firstName,
         lastName,
         email,
         socialId,
       );
+      return user.id
     } catch (error) {
       throw new BadRequestException(error.message);
     }

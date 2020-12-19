@@ -21,7 +21,7 @@ npx prisma introspect // after database schema changes
 npx prisma generate // after database schema changes
 npx prisma studio
 
-npx prisma db push
+npx prisma db push // generate & sync db
 npx prisma migrate reset // needed when push is blocked
 
 
