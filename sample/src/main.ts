@@ -11,8 +11,12 @@ const httpsOptions: HttpsOptions = {
 };
 
 async function bootstrapServer() {
-  const app = await NestFactory.create(ServerModule, { httpsOptions, cors: true });
+  const app = await NestFactory.create(ServerModule, { httpsOptions });
   app.use(cookieParser());
+  app.enableCors({
+    origin: 'https://localhost:3001',
+    credentials: true,
+  });
   await app.listen(3000);
 }
 bootstrapServer();

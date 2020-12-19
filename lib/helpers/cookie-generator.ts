@@ -5,6 +5,7 @@ export function generateCookie(
 ): string {
   return (
     `${key}=${value}; ` +
+    'Secure; ' + // must be enable for https, can skip if use cloudflare
     'HttpOnly; ' +
     'SameSite=Strict; ' +
     'Path=/; ' +

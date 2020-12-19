@@ -8,7 +8,7 @@
         window.fbAsyncInit = function () {
             FB.init({
                 appId: '252026689618575',
-                cookie: true,
+                cookie: false,
                 xfbml: true,
                 version: 'v9.0'
             });
@@ -26,24 +26,24 @@
 </head>
 
 <body>
-    <p>This is an example of a simple HTML page with one paragraph.</p>
+    <p id="text123">This is an example of a simple HTML page with one paragraph.</p>
 
     <button onclick="continueFB();">Continue With FB</button>
     <script>
         function continueFB() {
-            console.log('yes')
             FB.login(callServer, { scope: 'public_profile,email' });
         }
 
         function callServer(fbRes) {
-            console.log(fbRes)
             const url = new URL('https://localhost:3000/auth/continue-with-facebook')
             const params = {
                 access_token: fbRes.authResponse.accessToken
             }
             url.search = new URLSearchParams(params).toString();
-            fetch(url, { method: 'POST' })
-                .then(function (res) {
+            fetch(url, { 
+                method: 'POST',
+                credentials: 'include',
+            }).then(function (res) {
                     if (!res.ok) {
                         res.json().then(obj => {
                             console.log(obj)
@@ -53,6 +53,26 @@
                     return res;
                 }).then(function (res) {
                     console.log('ok');
+                }).catch(function (error) {
+                    console.log(error);
+                });
+        }
+    </script>
+
+    <div style="margin-bottom: 100px;"></div>
+
+    <button onclick="testAuth();">Test Auth</button>
+    <script>
+        function testAuth() {
+            const url = new URL('https://localhost:3000/register/models')
+            fetch(url, { credentials: 'include' })
+                .then(response => response.json())
+                .then(function (res) {
+                    console.log(res);
+                    document
+                        .getElementById('text123')
+                        .childNodes[0]
+                        .nodeValue = 'new text';
                 }).catch(function (error) {
                     console.log(error);
                 });

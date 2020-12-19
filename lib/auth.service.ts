@@ -233,13 +233,13 @@ export class AuthService {
     socialId: string,
   ): Promise<number> {
     try {
-      const user =  await this.userService.createUserViaFacebook(
+      const user = await this.userService.createUserViaFacebook(
         firstName,
         lastName,
         email,
         socialId,
       );
-      return user.id
+      return user.id;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
