@@ -22,6 +22,8 @@ export function authModuleOptions(): AuthModuleOptions {
       facebookClientId: Number(process.env.FACEBOOK_CLIENT_ID),
       facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       facebookGraphVersion: process.env.FACEBOOK_GRAPH_VERSION,
+
+      isHttpsOnly: process.env.HTTPS_ONLY == 'TRUE',
     },
     userServiceImplementation: UserServiceImplForAuth,
   };

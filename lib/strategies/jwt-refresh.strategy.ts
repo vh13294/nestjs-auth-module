@@ -2,7 +2,10 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { AuthRequest } from '../interfaces/auth-request.interface';
+import {
+  AuthRequest,
+  UserInRequest,
+} from '../interfaces/auth-request.interface';
 import { TokenPayload } from '../interfaces/token-payload.interface';
 import { ENV_OPTIONS } from '../auth.constants';
 import { EnvOptions } from '../interfaces/auth-option.interface';
@@ -30,7 +33,10 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
     });
   }
 
-  async validate(request: AuthRequest, payload: TokenPayload) {
+  async validate(
+    request: AuthRequest,
+    payload: TokenPayload,
+  ): Promise<UserInRequest> {
     return this.authService.jwtRefreshStrategy(request.cookies, payload.userId);
   }
 }

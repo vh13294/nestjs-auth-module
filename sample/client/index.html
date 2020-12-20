@@ -10,23 +10,29 @@
                 appId: '252026689618575',
                 cookie: false,
                 xfbml: true,
-                version: 'v9.0'
+                version: 'v9.0',
             });
             FB.AppEvents.logPageView();
         };
 
         (function (d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) { return; }
-            js = d.createElement(s); js.id = id;
-            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            var js,
+                fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {
+                return;
+            }
+            js = d.createElement(s);
+            js.id = id;
+            js.src = 'https://connect.facebook.net/en_US/sdk.js';
             fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
+        })(document, 'script', 'facebook-jssdk');
     </script>
 </head>
 
 <body>
-    <p id="text123">This is an example of a simple HTML page with one paragraph.</p>
+    <p id="text123">
+        This is an example of a simple HTML page with one paragraph.
+    </p>
 
     <button onclick="continueFB();">Continue With FB</button>
     <script>
@@ -35,45 +41,62 @@
         }
 
         function callServer(fbRes) {
-            const url = new URL('https://localhost:3000/auth/continue-with-facebook')
+            const url = new URL(
+                'https://localhost:3000/auth/continue-with-facebook',
+            );
             const params = {
-                access_token: fbRes.authResponse.accessToken
-            }
+                access_token: fbRes.authResponse.accessToken,
+            };
             url.search = new URLSearchParams(params).toString();
-            fetch(url, { 
-                method: 'POST',
-                credentials: 'include',
-            }).then(function (res) {
+            fetch(url, { method: 'POST', credentials: 'include'})
+                .then(function (res) {
                     if (!res.ok) {
-                        res.json().then(obj => {
-                            console.log(obj)
-                            throw new Error(obj.message)
-                        })
+                        res.json().then((obj) => {
+                            console.log(obj);
+                            throw new Error(obj.message);
+                        });
                     }
                     return res;
-                }).then(function (res) {
+                })
+                .then(function (res) {
                     console.log('ok');
-                }).catch(function (error) {
+                })
+                .catch(function (error) {
                     console.log(error);
                 });
         }
     </script>
 
-    <div style="margin-bottom: 100px;"></div>
+    <div style="margin-bottom: 100px"></div>
 
     <button onclick="testAuth();">Test Auth</button>
     <script>
         function testAuth() {
-            const url = new URL('https://localhost:3000/register/models')
+            const url = new URL('https://localhost:3000/register/models');
             fetch(url, { credentials: 'include' })
-                .then(response => response.json())
+                .then((response) => response.json())
                 .then(function (res) {
                     console.log(res);
-                    document
-                        .getElementById('text123')
-                        .childNodes[0]
-                        .nodeValue = 'new text';
-                }).catch(function (error) {
+                    document.getElementById('text123').childNodes[0].nodeValue =
+                        'new text';
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+    </script>
+
+    <div style="margin-bottom: 100px"></div>
+
+    <button onclick="renew();">Refresh Token</button>
+    <script>
+        function renew() {
+            const url = new URL('https://localhost:3000/auth/new-access-token');
+            fetch(url, { method: 'POST', credentials: 'include' })
+                .then(function (res) {
+                    console.log(res);
+                })
+                .catch(function (error) {
                     console.log(error);
                 });
         }

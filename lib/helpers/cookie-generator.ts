@@ -2,10 +2,13 @@ export function generateCookie(
   key: string,
   value: string,
   maxAgeInSecond: number,
+  secureHttps: boolean
 ): string {
+  // must be enable for https, can skip if use cloudflare
+  const secureHeader = secureHttps ? 'Secure; ' : '';
   return (
     `${key}=${value}; ` +
-    'Secure; ' + // must be enable for https, can skip if use cloudflare
+    secureHeader +
     'HttpOnly; ' +
     'SameSite=Strict; ' +
     'Path=/; ' +

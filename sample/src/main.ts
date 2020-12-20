@@ -5,10 +5,13 @@ import { readFileSync } from 'fs';
 import { ServerModule } from './server.module';
 import { ClientModule } from './client.module';
 
-const httpsOptions: HttpsOptions = {
-  key: readFileSync('./client/private-key.key'),
-  cert: readFileSync('./client/public-certificate.pem'),
-};
+const httpsOptions: HttpsOptions =
+  process.env.HTTPS_ONLY == 'TRUE'
+    ? {
+        key: readFileSync('./client/private-key.key'),
+        cert: readFileSync('./client/public-certificate.pem'),
+      }
+    : {};
 
 async function bootstrapServer() {
   const app = await NestFactory.create(ServerModule, { httpsOptions });

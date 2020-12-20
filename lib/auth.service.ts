@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  MethodNotAllowedException,
 } from '@nestjs/common';
 import { IUserService } from './interfaces/user-service.interface';
 import { CreateUserDto } from './validators/create-user.dto';
@@ -139,6 +140,7 @@ export class AuthService {
       COOKIE_KEYS.Authentication,
       token,
       minuteToSecond(this.env.jwtAccessTokenExpirationTimeMinute),
+      this.env.isHttpsOnly,
     );
   }
 
@@ -162,6 +164,7 @@ export class AuthService {
       COOKIE_KEYS.Refresh,
       token,
       dayToSecond(this.env.jwtRefreshTokenInactiveExpirationTimeDay),
+      this.env.isHttpsOnly,
     );
   }
 
@@ -174,14 +177,15 @@ export class AuthService {
       COOKIE_KEYS.DeviceId,
       deviceId,
       dayToSecond(this.env.jwtRefreshTokenInactiveExpirationTimeDay),
+      this.env.isHttpsOnly,
     );
   }
 
   public getCookiesForLogOut(): string[] {
     return [
-      generateCookie(COOKIE_KEYS.Authentication, '', 0),
-      generateCookie(COOKIE_KEYS.Refresh, '', 0),
-      generateCookie(COOKIE_KEYS.DeviceId, '', 0),
+      generateCookie(COOKIE_KEYS.Authentication, '', 0, this.env.isHttpsOnly),
+      generateCookie(COOKIE_KEYS.Refresh, '', 0, this.env.isHttpsOnly),
+      generateCookie(COOKIE_KEYS.DeviceId, '', 0, this.env.isHttpsOnly),
     ];
   }
 
@@ -193,7 +197,14 @@ export class AuthService {
     await this.userService.removeAllRefreshTokensOfUser(userId);
   }
 
-  async generateLoginCookie(userId: number): Promise<string[]> {
+  async generateLoginCookie(
+    cookies: Cookies,
+    userId: number,
+  ): Promise<string[]> {
+    if (this.isRefreshTokenMatched(cookies, userId)) {
+      throw new MethodNotAllowedException('The user is already logged in');
+    }
+
     const deviceId = this.generateDeviceId();
     const refreshToken = await this.generateRefreshToken(userId, deviceId);
 
@@ -214,16 +225,32 @@ export class AuthService {
     return [accessCookie, refreshCookie, deviceIdCookie];
   }
 
-  async getUserByEmail(email: string): Promise<number | undefined> {
+  async continueWithFacebook(
+    firstName: string,
+    lastName: string,
+    email: string,
+    socialId: string,
+  ): Promise<number> {
     const user = await this.userService.getUserByEmail(email);
-    return user?.id;
-  }
 
-  async doesUserHaveFacebookId(
-    profileId: string,
-    userId: number,
-  ): Promise<boolean> {
-    return await this.userService.doesFacebookIdExist(profileId, userId);
+    if (user) {
+      const doesFbIdExist = await this.userService.doesFacebookIdExist(
+        socialId,
+        user.id,
+      );
+      if (!doesFbIdExist) {
+        const errMessage = 'The user registered via email not FB';
+        throw new MethodNotAllowedException(errMessage);
+      }
+      return user.id;
+    }
+
+    return await this.registerUserViaFacebook(
+      firstName,
+      lastName,
+      email,
+      socialId,
+    );
   }
 
   async registerUserViaFacebook(

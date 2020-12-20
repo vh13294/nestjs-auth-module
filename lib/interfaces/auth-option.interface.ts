@@ -17,4 +17,6 @@ export interface EnvOptions {
   facebookClientId: number;
   facebookClientSecret: string;
   facebookGraphVersion: string;
+
+  isHttpsOnly: boolean;
 }

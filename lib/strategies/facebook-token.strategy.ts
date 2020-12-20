@@ -1,10 +1,5 @@
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
-import {
-  ExecutionContext,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import FacebookTokenStrategy, { Profile } from 'passport-facebook-token';
 import { Request } from 'express';
 import { ENV_OPTIONS } from '../auth.constants';
@@ -36,22 +31,22 @@ export class FacebookStrategy extends PassportStrategy(
     _accessToken: string,
     _refreshToken: string,
     profile: Profile,
-    _done: Function,
-  ) {
+    // _done: Function,
+  ): Promise<Profile> {
     return profile;
   }
 }
 
 @Injectable()
 export class FacebookGuard extends AuthGuard(FB_TOKEN) {
-  canActivate(context: ExecutionContext) {
-    // ?access_token='123' query
-    return super.canActivate(context);
-  }
+  // canActivate(context: ExecutionContext) {
+  //   // ?access_token='123' query
+  //   return super.canActivate(context);
+  // }
 
-  handleRequest(err: any, profile: any) {
+  handleRequest<Profile>(err: Error, profile: Profile): Profile {
     if (err || !profile) {
-      throw err || new UnauthorizedException(err.message);
+      throw err || new UnauthorizedException('Unauthorized FB SDK access');
     }
     // append { user: profile } to request
     return profile;

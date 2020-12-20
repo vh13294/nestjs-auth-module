@@ -2,6 +2,7 @@ import { Strategy } from 'passport-local';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
+import { UserInRequest } from '../interfaces/auth-request.interface';
 
 const LOCAL = 'local';
 
@@ -12,7 +13,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, LOCAL) {
       usernameField: 'email',
     });
   }
-  async validate(email: string, password: string) {
+  async validate(email: string, password: string): Promise<UserInRequest> {
     return this.authService.localStrategy(email, password);
   }
 }

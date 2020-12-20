@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Nest Framework",
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register",
+                "-r",
+                "tsconfig-paths/register"
+            ],
+            "cwd": "${workspaceFolder}/sample",
+            "args": [
+                "${workspaceFolder}/sample/src/main.ts"
+            ],
+            "autoAttachChildProcesses": true,
+            "protocol": "inspector",
+            "sourceMaps": true
+        }
+    ]
+}

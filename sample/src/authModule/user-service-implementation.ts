@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IUserService, CreateUserDto } from 'nestjs-auth-module';
+import { QueryUserDto } from 'nestjs-auth-module/dist/interfaces/query-user.dto';
 import { PrismaService } from 'src/prismaModule/prisma.service';
 
 @Injectable()
 export class UserServiceImplForAuth implements IUserService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(user: CreateUserDto) {
+  async createUser(user: CreateUserDto): Promise<QueryUserDto> {
     return await this.prismaService.user.create({
       data: {
         firstName: user.firstName,
@@ -17,7 +18,7 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
-  async getUserById(id: number) {
+  async getUserById(id: number): Promise<QueryUserDto> {
     return await this.prismaService.user.findUnique({
       where: {
         id: id,
@@ -25,7 +26,7 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
-  async getUserByEmail(email: string) {
+  async getUserByEmail(email: string): Promise<QueryUserDto> {
     return await this.prismaService.user.findUnique({
       where: {
         email: email,
@@ -37,7 +38,7 @@ export class UserServiceImplForAuth implements IUserService {
     refreshToken: string,
     deviceId: string,
     userId: number,
-  ) {
+  ): Promise<void> {
     await this.prismaService.refreshToken.create({
       data: {
         userId: userId,
@@ -47,7 +48,7 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
-  async getRefreshToken(deviceId: string, userId: number) {
+  async getRefreshToken(deviceId: string, userId: number): Promise<string> {
     const refreshToken = await this.prismaService.refreshToken.findFirst({
       where: {
         deviceId: deviceId,
@@ -58,7 +59,7 @@ export class UserServiceImplForAuth implements IUserService {
     return refreshToken.token;
   }
 
-  async removeRefreshToken(deviceId: string, userId: number) {
+  async removeRefreshToken(deviceId: string, userId: number): Promise<void> {
     await this.prismaService.refreshToken.deleteMany({
       where: {
         userId: userId,
@@ -67,7 +68,7 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
-  async removeAllRefreshTokensOfUser(userId: number) {
+  async removeAllRefreshTokensOfUser(userId: number): Promise<void> {
     await this.prismaService.refreshToken.deleteMany({
       where: {
         userId: userId,
@@ -75,7 +76,10 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
-  async removeEarliestRefreshTokenIfExceedLimit(userId: number, limit: number) {
+  async removeEarliestRefreshTokenIfExceedLimit(
+    userId: number,
+    limit: number,
+  ): Promise<void> {
     const tokens = await this.prismaService.refreshToken.findMany({
       select: {
         id: true,
@@ -100,7 +104,10 @@ export class UserServiceImplForAuth implements IUserService {
     }
   }
 
-  async doesFacebookIdExist(socialId: string, userId: number) {
+  async doesFacebookIdExist(
+    socialId: string,
+    userId: number,
+  ): Promise<boolean> {
     const social = await this.prismaService.socialAccount.findFirst({
       select: {
         id: true,
@@ -119,7 +126,7 @@ export class UserServiceImplForAuth implements IUserService {
     lastName: string,
     email: string,
     socialId: string,
-  ) {
+  ): Promise<QueryUserDto> {
     return await this.prismaService.user.create({
       data: {
         firstName: firstName,
