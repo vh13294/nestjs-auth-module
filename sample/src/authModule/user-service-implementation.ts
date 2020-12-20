@@ -48,7 +48,10 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
-  async getRefreshToken(deviceId: string, userId: number): Promise<string> {
+  async getRefreshToken(
+    deviceId: string,
+    userId: number,
+  ): Promise<string | undefined> {
     const refreshToken = await this.prismaService.refreshToken.findFirst({
       where: {
         deviceId: deviceId,
@@ -56,7 +59,7 @@ export class UserServiceImplForAuth implements IUserService {
       },
     });
 
-    return refreshToken.token;
+    return refreshToken?.token;
   }
 
   async removeRefreshToken(deviceId: string, userId: number): Promise<void> {

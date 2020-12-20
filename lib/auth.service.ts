@@ -105,7 +105,7 @@ export class AuthService {
     cookies: Cookies,
     userId: number,
   ): Promise<UserInRequest> {
-    if (this.isRefreshTokenMatched(cookies, userId)) {
+    if (await this.isRefreshTokenMatched(cookies, userId)) {
       const user = await this.userService.getUserById(userId);
       return {
         id: user.id,
@@ -124,8 +124,10 @@ export class AuthService {
       cookies.DeviceId,
       userId,
     );
-    const isTokenMatched = compare(cookies.Refresh, hashToken);
-    return isTokenMatched;
+    if (cookies.Refresh && hashToken) {
+      return await compare(cookies.Refresh, hashToken);
+    }
+    return false;
   }
 
   getAccessTokenCookie(userId: number): string {
@@ -201,7 +203,7 @@ export class AuthService {
     cookies: Cookies,
     userId: number,
   ): Promise<string[]> {
-    if (this.isRefreshTokenMatched(cookies, userId)) {
+    if (await this.isRefreshTokenMatched(cookies, userId)) {
       throw new MethodNotAllowedException('The user is already logged in');
     }
 

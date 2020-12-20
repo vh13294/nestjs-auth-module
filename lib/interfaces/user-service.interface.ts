@@ -12,7 +12,10 @@ export interface IUserService {
     deviceId: string,
     userId: number,
   ): Promise<void>;
-  getRefreshToken(deviceId: string, userId: number): Promise<string>;
+  getRefreshToken(
+    deviceId: string,
+    userId: number,
+  ): Promise<string | undefined>;
 
   removeRefreshToken(deviceId: string, userId: number): Promise<void>;
   removeAllRefreshTokensOfUser(userId: number): Promise<void>;

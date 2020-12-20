@@ -55,7 +55,7 @@ export class AuthController {
       accountId,
     );
     res.setHeader('Set-Cookie', loginCookie);
-    return res.sendStatus(20);
+    return res.sendStatus(200);
   }
 
   @UseGuards(LocalAuthGuard)
