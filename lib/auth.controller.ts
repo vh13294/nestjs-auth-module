@@ -21,6 +21,7 @@ import {
   FacebookGuard,
   FacebookRequest,
 } from './strategies/facebook-token.strategy';
+import { UserObjectResponse } from './interfaces/user-object-response.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -37,7 +38,7 @@ export class AuthController {
 
   @UseGuards(FacebookGuard)
   @Get('continue-with-facebook')
-  async registerFacebook(
+  async continueWithFacebook(
     @Req() req: FacebookRequest,
     @Res() res: Response,
   ): Promise<Response> {
@@ -55,8 +56,10 @@ export class AuthController {
       cookies,
       accountId,
     );
+
+    const userObjectResponse = await this.authService.getUserById(accountId);
     res.setHeader('Set-Cookie', loginCookie);
-    return res.sendStatus(200);
+    return res.send(userObjectResponse);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -72,8 +75,10 @@ export class AuthController {
       cookies,
       user.id,
     );
+
+    const userObjectResponse = await this.authService.getUserById(user.id);
     res.setHeader('Set-Cookie', loginCookie);
-    return res.sendStatus(200);
+    return res.send(userObjectResponse);
   }
 
   @UseGuards(JwtAuthAccessGuard)
@@ -115,5 +120,15 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', newCookies);
     return res.sendStatus(200);
+  }
+
+  @UseGuards(JwtAuthAccessGuard)
+  @Get('current-logged-in-user')
+  async currentLoggedInUser(
+    @Req() req: AuthRequest,
+  ): Promise<UserObjectResponse> {
+    const { user } = req;
+    const userObjectResponse = await this.authService.getUserById(user.id);
+    return userObjectResponse;
   }
 }

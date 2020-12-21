@@ -137,4 +137,4 @@ HTTPS_ONLY=TRUE
 
 - Add ? Role authorization??
 - Add unit test in sample (for controller flows?)
-- When to return user obj
+- Password reset?, confirmation email?

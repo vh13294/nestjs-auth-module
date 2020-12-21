@@ -23,6 +23,7 @@ import {
 } from './helpers/cookie-generator';
 import { TokenPayload } from './interfaces/token-payload.interface';
 import { EnvOptions } from './interfaces/auth-option.interface';
+import { UserObjectResponse } from './interfaces/user-object-response.interface';
 
 @Injectable()
 export class AuthService {
@@ -272,5 +273,15 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async getUserById(userId: number): Promise<UserObjectResponse> {
+    const user = await this.userService.getUserById(userId);
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
   }
 }
