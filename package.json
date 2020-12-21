@@ -12,9 +12,9 @@
     "lib": "lib"
   },
   "scripts": {
-    "prebuild": "rm -rf dist && rm -f *.tgz",
+    "prebuild": "rimraf dist",
     "build": "tsc -p tsconfig.json",
-    "postbuild": "npm pack && mv nestjs-auth-module-*.tgz compiled-lib.tgz",
+    "postbuild": "cd sample && npm install $(npm pack ../ | tail -1)",
     "update": "npx npm-check-updates -u && cd sample && npx npm-check-updates -u",
     "format": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{lib,apps,libs,test}/**/*.ts\" --fix",
@@ -58,6 +58,7 @@
     "passport": "^0.4.1",
     "passport-facebook-token": "^4.0.0",
     "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "rimraf": "^3.0.2"
   }
 }
