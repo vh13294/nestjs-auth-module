@@ -13,6 +13,8 @@ export class LocalStrategy extends PassportStrategy(Strategy, LOCAL) {
       usernameField: 'email',
     });
   }
+
+  // Get email/password from request, for security issue, please use post request
   async validate(email: string, password: string): Promise<UserInRequest> {
     return this.authService.localStrategy(email, password);
   }

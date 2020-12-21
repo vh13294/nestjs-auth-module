@@ -20,6 +20,14 @@ AuthModule.forRoot({
 }),
 ```
 
+- Example user implementation using prisma
+
+[user-service-implementation.ts](https://github.com/vh13294/nestjs-auth-module/blob/main/sample/src/authModule/user-service-implementation.ts)
+
+- DB schema
+
+[schema.prisma](https://github.com/vh13294/nestjs-auth-module/blob/main/sample/prisma/schema.prisma)
+
 ```ENV
 JWT_ACCESS_TOKEN_SECRET=123
 JWT_ACCESS_TOKEN_EXPIRATION_TIME_MINUTE=900
@@ -27,6 +35,12 @@ JWT_REFRESH_TOKEN_SECRET=abc
 JWT_REFRESH_TOKEN_ABSOLUTE_EXPIRATION_TIME_DAY=90
 JWT_REFRESH_TOKEN_INACTIVE_EXPIRATION_TIME_DAY=14
 JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
+
+FACEBOOK_CLIENT_ID=1
+FACEBOOK_CLIENT_SECRET=1
+FACEBOOK_GRAPH_VERSION=v9.0
+
+HTTPS_ONLY=TRUE
 ```
 
 ## Refresh token inactive policy
@@ -40,11 +54,12 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
 ## Front-end handling
 
 - On page load, that point to open route
-  - get User obj using access token if valid set global state login=true
+  - get User obj using access token, ignore error such as 400+
+  - if valid set global state login=true
   - otherwise set login=false
 - On page load, that point to protected route
   - check access token, then refresh token,
-  - Redirect to login if 401
+  - Redirect to login page if 401
   - typically handle by front end router
 - Avoid or block login page global state login=true
 
@@ -95,7 +110,7 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
   - Using Http2 to renew token, if 401 occur redirect to login page
   - Pause all Http1 instance or lock until Http2 is resolved
 
-  - Or send 403 for invalid refresh token
+  - Or send 403 for invalid refresh token (skip 401 loop)
 
 ## Social
 
@@ -113,13 +128,13 @@ JWT_REFRESH_TOKEN_MAX_NUMBER_ISSUED=15
 
 - For FB, InternalOAuthError: Failed to fetch user profile, usually mean incorrect appKey/appID
 
-## Test HTTPS
+## Test HTTPS client on chrome
 
 - Simply click anywhere on the denial page and type “thisisunsafe”.
+- Disable ad-blocker
 
 ## TODO
 
 - Add ? Role authorization??
 - Add unit test in sample (for controller flows?)
 - When to return user obj
-- Inject option instead of env

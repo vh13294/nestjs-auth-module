@@ -11,7 +11,7 @@ const httpsOptions: HttpsOptions =
         key: readFileSync('./client/private-key.key'),
         cert: readFileSync('./client/public-certificate.pem'),
       }
-    : {};
+    : null;
 
 async function bootstrapServer() {
   const app = await NestFactory.create(ServerModule, { httpsOptions });

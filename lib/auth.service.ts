@@ -33,10 +33,10 @@ export class AuthService {
     private readonly userService: IUserService,
     private readonly jwtService: JwtService,
   ) {
-    const isOptionMissing = Object.values(this.env).some((value) => !value);
-
-    if (isOptionMissing) {
-      throw new Error('Missing JWT option in env');
+    for (const [key, value] of Object.entries(this.env)) {
+      if (value === '' || value === undefined) {
+        throw new Error(`Missing ${key} in env`);
+      }
     }
   }
 

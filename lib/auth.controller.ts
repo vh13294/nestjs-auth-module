@@ -6,6 +6,7 @@ import {
   Res,
   Req,
   ValidationPipe,
+  Get,
 } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -35,7 +36,7 @@ export class AuthController {
   }
 
   @UseGuards(FacebookGuard)
-  @Post('continue-with-facebook')
+  @Get('continue-with-facebook')
   async registerFacebook(
     @Req() req: FacebookRequest,
     @Res() res: Response,
@@ -60,6 +61,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('log-in')
+  // Should default to post request
   async logIn(
     @Req() req: AuthRequest,
     @Res() res: Response,
@@ -75,7 +77,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthAccessGuard)
-  @Post('log-out')
+  @Get('log-out')
   async logOut(
     @Req() req: AuthRequest,
     @Res() res: Response,
@@ -89,7 +91,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthAccessGuard)
-  @Post('log-out-all-devices')
+  @Get('log-out-all-devices')
   async logOutAllDevices(
     @Req() req: AuthRequest,
     @Res() res: Response,
@@ -103,7 +105,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthRefreshGuard)
-  @Post('new-access-token')
+  @Get('new-access-token')
   async refresh(
     @Req() req: AuthRequest,
     @Res() res: Response,

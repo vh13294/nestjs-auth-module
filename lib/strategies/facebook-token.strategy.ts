@@ -39,14 +39,11 @@ export class FacebookStrategy extends PassportStrategy(
 
 @Injectable()
 export class FacebookGuard extends AuthGuard(FB_TOKEN) {
-  // canActivate(context: ExecutionContext) {
-  //   // ?access_token='123' query
-  //   return super.canActivate(context);
-  // }
-
   handleRequest<Profile>(err: Error, profile: Profile): Profile {
-    if (err || !profile) {
-      throw err || new UnauthorizedException('Unauthorized FB SDK access');
+    if (err) {
+      throw new UnauthorizedException(err);
+    } else if (!profile) {
+      throw err || new UnauthorizedException('Facebook profile not found');
     }
     // append { user: profile } to request
     return profile;
