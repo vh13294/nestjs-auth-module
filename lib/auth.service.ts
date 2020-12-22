@@ -83,14 +83,19 @@ export class AuthService {
     plainTextPassword: string,
   ): Promise<UserInRequest> {
     const user = await this.userService.getUserByEmail(email);
-    if (user?.password) {
-      await this.verifyPassword(plainTextPassword, user.password);
-      return {
-        id: user.id,
-        email: user.email,
-      };
+    if (user) {
+      if (user.password) {
+        await this.verifyPassword(plainTextPassword, user.password);
+        return {
+          id: user.id,
+          email: user.email,
+        };
+      } else {
+        throw new BadRequestException(
+          'The password has not been set for this account, You may use social-login',
+        );
+      }
     }
-    // todo warn user did you register via FB?
     throw new BadRequestException('Invalid Credentials');
   }
 

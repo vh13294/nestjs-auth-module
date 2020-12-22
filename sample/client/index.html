@@ -48,6 +48,7 @@
                 access_token: fbRes.authResponse.accessToken,
             };
             url.search = new URLSearchParams(params).toString();
+            console.log(url.search)
             fetch(url, { method: 'POST', credentials: 'include'})
                 .then(function (res) {
                     if (!res.ok) {
@@ -92,7 +93,7 @@
     <script>
         function renew() {
             const url = new URL('https://localhost:3000/auth/new-access-token');
-            fetch(url, { method: 'POST', credentials: 'include' })
+            fetch(url, { credentials: 'include' })
                 .then(function (res) {
                     console.log(res);
                 })

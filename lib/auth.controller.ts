@@ -37,7 +37,8 @@ export class AuthController {
   }
 
   @UseGuards(FacebookGuard)
-  @Get('continue-with-facebook')
+  @Post('continue-with-facebook')
+  // For security reason please 'Post' accessToken
   async continueWithFacebook(
     @Req() req: FacebookRequest,
     @Res() res: Response,
@@ -66,7 +67,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('log-in')
-  // Should default to post request
+  // For security reason please 'Post' credentials
   async logIn(
     @Req() req: AuthRequest,
     @Res() res: Response,
