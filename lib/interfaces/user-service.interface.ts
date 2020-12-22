@@ -4,8 +4,8 @@ import { QueryUserDto } from './query-user.dto';
 export interface IUserService {
   createUser(user: CreateUserDto): Promise<QueryUserDto>;
 
-  getUserById(userId: number): Promise<QueryUserDto>;
-  getUserByEmail(email: string): Promise<QueryUserDto>;
+  getUserById(userId: number): Promise<QueryUserDto | undefined>;
+  getUserByEmail(email: string): Promise<QueryUserDto | undefined>;
 
   createRefreshToken(
     token: string,

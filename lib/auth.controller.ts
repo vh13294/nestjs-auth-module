@@ -57,9 +57,11 @@ export class AuthController {
       accountId,
     );
 
-    const userObjectResponse = await this.authService.getUserById(accountId);
+    const userForResponse = await this.authService.getUserForResponse(
+      accountId,
+    );
     res.setHeader('Set-Cookie', loginCookie);
-    return res.send(userObjectResponse);
+    return res.send(userForResponse);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -76,9 +78,9 @@ export class AuthController {
       user.id,
     );
 
-    const userObjectResponse = await this.authService.getUserById(user.id);
+    const userForResponse = await this.authService.getUserForResponse(user.id);
     res.setHeader('Set-Cookie', loginCookie);
-    return res.send(userObjectResponse);
+    return res.send(userForResponse);
   }
 
   @UseGuards(JwtAuthAccessGuard)
@@ -128,7 +130,36 @@ export class AuthController {
     @Req() req: AuthRequest,
   ): Promise<UserObjectResponse> {
     const { user } = req;
-    const userObjectResponse = await this.authService.getUserById(user.id);
-    return userObjectResponse;
+    const userForResponse = await this.authService.getUserForResponse(user.id);
+    return userForResponse;
   }
+
+  /**
+   *
+   * @UseGuards(JwtAuthAccessGuard)
+   * sendPasswordResetLinkToUserViaEmail(req)
+   * const { user } = req;
+   * email = this.getEmail(user)
+   *
+   * const url = this.generateSignedUrl(
+   * controller,
+   * controller method,
+   * validDuration = 10mn,
+   * )
+   *
+   * this.userService.sendEmail(email, url)
+   *
+   *
+   * @Post('resetPasswordLink')
+   * @UseGuards(UrlGeneratorGuard, JwtAuthAccessGuard)
+   * async resetPasswordLink(req: Body)
+   *
+   * const { user, oldPassword, newPassword } = req;
+   * this.verifyOldPassword(oldPassword, currentPassword)
+   *
+   * this.updateUser(user.id, {
+   * password: hashed-password
+   * })
+   *
+   */
 }

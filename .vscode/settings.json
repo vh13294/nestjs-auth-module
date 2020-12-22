@@ -3,6 +3,8 @@
         "Parens",
         "mjml",
         "nestjs",
+        "postgres",
+        "postgresql",
         "sendgrid"
     ]
 }

@@ -1,17 +1,17 @@
-version: '3'
+version: '3.9'
 
 services:
-  mysql-main:
+  db-main:
     container_name: nest-auth
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password
+    image: postgres:latest
     ports:
-      - "3308:3306"
+      - '5432:5432'
     environment:
-      - MYSQL_ROOT_PASSWORD=secret
-      - MYSQL_DATABASE=inventory-management
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
     volumes:
-      - db-data:/var/lib/mysql:cached
+      - db-data:/var/lib/postgres
 
 volumes:
   db-data:

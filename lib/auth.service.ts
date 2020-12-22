@@ -82,24 +82,27 @@ export class AuthService {
     email: string,
     plainTextPassword: string,
   ): Promise<UserInRequest> {
-    try {
-      const user = await this.userService.getUserByEmail(email);
+    const user = await this.userService.getUserByEmail(email);
+    if (user?.password) {
       await this.verifyPassword(plainTextPassword, user.password);
       return {
         id: user.id,
         email: user.email,
       };
-    } catch (error) {
-      throw new BadRequestException(error.message);
     }
+    // todo warn user did you register via FB?
+    throw new BadRequestException('Invalid Credentials');
   }
 
   async jwtAccessStrategy(userId: number): Promise<UserInRequest> {
     const user = await this.userService.getUserById(userId);
-    return {
-      id: user.id,
-      email: user.email,
-    };
+    if (user) {
+      return {
+        id: user.id,
+        email: user.email,
+      };
+    }
+    throw new BadRequestException('Invalid Credentials');
   }
 
   async jwtRefreshStrategy(
@@ -108,13 +111,14 @@ export class AuthService {
   ): Promise<UserInRequest> {
     if (await this.isRefreshTokenMatched(cookies, userId)) {
       const user = await this.userService.getUserById(userId);
-      return {
-        id: user.id,
-        email: user.email,
-      };
-    } else {
-      throw new ForbiddenException('Invalid token');
+      if (user) {
+        return {
+          id: user.id,
+          email: user.email,
+        };
+      }
     }
+    throw new ForbiddenException('Invalid token');
   }
 
   async isRefreshTokenMatched(
@@ -275,13 +279,16 @@ export class AuthService {
     }
   }
 
-  async getUserById(userId: number): Promise<UserObjectResponse> {
+  async getUserForResponse(userId: number): Promise<UserObjectResponse> {
     const user = await this.userService.getUserById(userId);
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-    };
+    if (user) {
+      return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      };
+    }
+    throw new BadRequestException('Invalid Credentials');
   }
 }
