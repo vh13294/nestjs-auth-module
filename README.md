@@ -2,7 +2,7 @@
 
 // header content ["Set-Cookie"]
 
-### Cookie Parse
+### Cookie Parser
 
 npm i @types/cookie-parser
 npm i cookie-parser
@@ -13,9 +13,10 @@ app.use(cookieParser());
 ## Usage
 
 ```typescript
-class UserServiceImplForAuth implements IUserService
+class UserServiceImplForAuth implements IUserService {}
 
 AuthModule.forRoot({
+  env: {}
   userServiceImplementation: UserServiceImplForAuth
 }),
 ```

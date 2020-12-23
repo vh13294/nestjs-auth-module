@@ -107,7 +107,7 @@ export class AuthService {
         email: user.email,
       };
     }
-    throw new BadRequestException('Invalid Credentials');
+    throw new BadRequestException('Invalid token');
   }
 
   async jwtRefreshStrategy(

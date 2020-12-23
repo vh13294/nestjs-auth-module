@@ -1,17 +1,14 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
-export type paginateWrapper<T> = {
-  data: T;
-  total: number;
-};
-
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    super();
+    super({
+      log: ['query', 'info', 'warn'],
+    });
   }
 
   async onModuleInit(): Promise<void> {
@@ -20,12 +17,5 @@ export class PrismaService
 
   async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
-  }
-
-  paginate<T>(data: T, total: number): paginateWrapper<T> {
-    return {
-      data: data,
-      total: total,
-    };
   }
 }

@@ -2,7 +2,7 @@ export function generateCookie(
   key: string,
   value: string,
   maxAgeInSecond: number,
-  secureHttps: boolean
+  secureHttps: boolean,
 ): string {
   // must be enable for https, can skip if use cloudflare
   const secureHeader = secureHttps ? 'Secure; ' : '';
@@ -16,10 +16,10 @@ export function generateCookie(
   );
 }
 
-export function dayToSecond(day: number) {
+export function dayToSecond(day: number): number {
   return day * 86400;
 }
 
-export function minuteToSecond(minute: number) {
+export function minuteToSecond(minute: number): number {
   return minute * 60;
 }
