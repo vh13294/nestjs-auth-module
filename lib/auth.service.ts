@@ -308,7 +308,13 @@ export class AuthService {
     if (authUserId !== userData.userId) {
       throw new ForbiddenException('Incorrect User');
     }
-    // todo
-    // await this.userService.setUserPassword(authUserId)
+
+    const user = await this.userService.getUserById(authUserId);
+    if (user?.password) {
+      throw new BadRequestException('The password has already been set!');
+    }
+
+    const hashedPassword = await saltHash(userData.password);
+    await this.userService.setUserPassword(authUserId, hashedPassword);
   }
 }

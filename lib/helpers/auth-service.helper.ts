@@ -17,5 +17,8 @@ export function generateDeviceId(): string {
 }
 
 export async function saltHash(input: string): Promise<string> {
-  return await hash(input, 10);
+  if (input) {
+    return await hash(input, 10);
+  }
+  throw new BadRequestException('The Field must not be empty');
 }
