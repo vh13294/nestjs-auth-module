@@ -34,6 +34,17 @@ export class UserServiceImplForAuth implements IUserService {
     });
   }
 
+  async setUserPassword(userId: number, hashedPassword: string): Promise<void> {
+    await this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+  }
+
   async createRefreshToken(
     refreshToken: string,
     deviceId: string,

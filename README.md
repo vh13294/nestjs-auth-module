@@ -1,14 +1,10 @@
-## Auth
+## ["Set-Cookie"] Auth
 
-// header content ["Set-Cookie"]
+- Require Cookie Parser
 
-### Cookie Parser
+- Database / ORM agnostic
 
-npm i @types/cookie-parser
-npm i cookie-parser
-
-import \* as cookieParser from 'cookie-parser';
-app.use(cookieParser());
+- Only need to implement IUserService
 
 ## Usage
 
@@ -43,30 +39,6 @@ FACEBOOK_GRAPH_VERSION=v9.0
 
 HTTPS_ONLY=TRUE
 ```
-
-## Refresh token inactive policy
-
-- Refresh Token Cookie Max-Age will be used as inactive time,
-  It will be reset when issuing new access-token,
-
-- Absolute life time time will be stored in jwt.signToken(),
-  which will be validated in Strategy
-
-## Front-end handling
-
-- On page load, that point to open route
-  - get User obj using access token, ignore error such as 400+
-  - if valid set global state login=true
-  - otherwise set login=false
-- On page load, that point to protected route
-  - check access token, then refresh token,
-  - Redirect to login page if 401
-  - typically handle by front end router
-- Avoid or block login page global state login=true
-
-## Back-end handling
-
-- Run cronjob to clean expired refreshToken based on (createdAt)
 
 ## Auth Flow
 
@@ -129,15 +101,33 @@ HTTPS_ONLY=TRUE
 
 - For FB, InternalOAuthError: Failed to fetch user profile, usually mean incorrect appKey/appID
 
-## Test HTTPS client on chrome
+## Refresh token inactive policy
 
-- Simply click anywhere on the denial page and type “thisisunsafe”.
-- Disable ad-blocker
+- Refresh Token Cookie Max-Age will be used as inactive time,
+  It will be reset when issuing new access-token,
+
+- Absolute life time time will be stored in jwt.signToken(),
+  which will be validated in Strategy
+
+## Front-end handling
+
+- On page load, that point to open route
+  - get User obj using access token, ignore error such as 400+
+  - if valid set global state login=true
+  - otherwise set login=false
+- On page load, that point to protected route
+  - check access token, then refresh token,
+  - Redirect to login page if 401
+  - typically handle by front end router
+- Avoid or block login page global state login=true
+
+## Back-end handling
+
+- Run cronjob to clean expired refreshToken based on (createdAt)
 
 ## TODO
 
 - Add ? Role authorization??
 - Add unit test in sample (for controller flows?)
 - Password reset?, confirmation email?
-- handle Change/update password
 - search for // todo

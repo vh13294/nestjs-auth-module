@@ -22,6 +22,7 @@ import {
   FacebookRequest,
 } from './strategies/facebook-token.strategy';
 import { UserObjectResponse } from './interfaces/user-object-response.interface';
+import { UpdatePasswordDto } from './validators/update-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -43,24 +44,21 @@ export class AuthController {
     @Req() req: FacebookRequest,
     @Res() res: Response,
   ): Promise<Response> {
-    const { user, cookies } = req;
-    const facebookProfileId = user.id;
+    const { facebookProfile, cookies } = req;
 
-    const accountId = await this.authService.continueWithFacebook(
-      user.name.givenName,
-      user.name.familyName,
-      user.emails[0].value,
-      facebookProfileId,
+    const userId = await this.authService.continueWithFacebook(
+      facebookProfile.name.givenName,
+      facebookProfile.name.familyName,
+      facebookProfile.emails[0].value,
+      facebookProfile.id,
     );
 
     const loginCookie = await this.authService.generateLoginCookie(
       cookies,
-      accountId,
+      userId,
     );
 
-    const userForResponse = await this.authService.getUserForResponse(
-      accountId,
-    );
+    const userForResponse = await this.authService.getUserForResponse(userId);
     res.setHeader('Set-Cookie', loginCookie);
     return res.send(userForResponse);
   }
@@ -72,14 +70,16 @@ export class AuthController {
     @Req() req: AuthRequest,
     @Res() res: Response,
   ): Promise<Response> {
-    const { user, cookies } = req;
+    const { authUser, cookies } = req;
 
     const loginCookie = await this.authService.generateLoginCookie(
       cookies,
-      user.id,
+      authUser.id,
     );
 
-    const userForResponse = await this.authService.getUserForResponse(user.id);
+    const userForResponse = await this.authService.getUserForResponse(
+      authUser.id,
+    );
     res.setHeader('Set-Cookie', loginCookie);
     return res.send(userForResponse);
   }
@@ -90,8 +90,8 @@ export class AuthController {
     @Req() req: AuthRequest,
     @Res() res: Response,
   ): Promise<Response> {
-    const { user, cookies } = req;
-    await this.authService.removeRefreshToken(cookies.DeviceId, user.id);
+    const { authUser, cookies } = req;
+    await this.authService.removeRefreshToken(cookies.DeviceId, authUser.id);
     const logoutCookie = this.authService.getCookiesForLogOut();
 
     res.setHeader('Set-Cookie', logoutCookie);
@@ -104,8 +104,8 @@ export class AuthController {
     @Req() req: AuthRequest,
     @Res() res: Response,
   ): Promise<Response> {
-    const { user } = req;
-    await this.authService.removeAllRefreshTokensOfUser(user.id);
+    const { authUser } = req;
+    await this.authService.removeAllRefreshTokensOfUser(authUser.id);
     const logoutCookie = this.authService.getCookiesForLogOut();
 
     res.setHeader('Set-Cookie', logoutCookie);
@@ -118,8 +118,8 @@ export class AuthController {
     @Req() req: AuthRequest,
     @Res() res: Response,
   ): Promise<Response> {
-    const { user, cookies } = req;
-    const newCookies = this.authService.renewAccessToken(cookies, user.id);
+    const { authUser, cookies } = req;
+    const newCookies = this.authService.renewAccessToken(cookies, authUser.id);
 
     res.setHeader('Set-Cookie', newCookies);
     return res.sendStatus(200);
@@ -130,9 +130,26 @@ export class AuthController {
   async currentLoggedInUser(
     @Req() req: AuthRequest,
   ): Promise<UserObjectResponse> {
-    const { user } = req;
-    const userForResponse = await this.authService.getUserForResponse(user.id);
+    const { authUser } = req;
+    const userForResponse = await this.authService.getUserForResponse(
+      authUser.id,
+    );
     return userForResponse;
+  }
+
+  @UseGuards(JwtAuthAccessGuard)
+  @Post('set-initial-password-for-social-sign-up')
+  async setInitialPasswordForSocialSignUp(
+    @Req() req: AuthRequest,
+    @Body(new ValidationPipe()) userData: UpdatePasswordDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const { authUser } = req;
+    await this.authService.setInitialPasswordForSocialSignUp(
+      authUser.id,
+      userData,
+    );
+    return res.sendStatus(200);
   }
 
   /**

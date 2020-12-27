@@ -1,5 +1,9 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthGuard, PassportStrategy } from '@nestjs/passport';
+import {
+  AuthGuard,
+  IAuthModuleOptions,
+  PassportStrategy,
+} from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import {
@@ -9,6 +13,7 @@ import {
 import { TokenPayload } from '../interfaces/token-payload.interface';
 import { ENV_OPTIONS } from '../auth.constants';
 import { EnvOptions } from '../interfaces/auth-option.interface';
+import { nameOf } from '../helpers/types-helper';
 
 const JWT_REFRESH_TOKEN = 'jwt-refresh-token';
 
@@ -42,4 +47,10 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
 }
 
 @Injectable()
-export class JwtAuthRefreshGuard extends AuthGuard(JWT_REFRESH_TOKEN) {}
+export class JwtAuthRefreshGuard extends AuthGuard(JWT_REFRESH_TOKEN) {
+  getAuthenticateOptions(): IAuthModuleOptions {
+    return {
+      property: nameOf<AuthRequest>('authUser'),
+    };
+  }
+}

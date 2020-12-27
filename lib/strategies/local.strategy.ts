@@ -1,8 +1,16 @@
 import { Strategy } from 'passport-local';
-import { AuthGuard, PassportStrategy } from '@nestjs/passport';
+import {
+  AuthGuard,
+  IAuthModuleOptions,
+  PassportStrategy,
+} from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { UserInRequest } from '../interfaces/auth-request.interface';
+import {
+  AuthRequest,
+  UserInRequest,
+} from '../interfaces/auth-request.interface';
+import { nameOf } from '../helpers/types-helper';
 
 const LOCAL = 'local';
 
@@ -21,4 +29,10 @@ export class LocalStrategy extends PassportStrategy(Strategy, LOCAL) {
 }
 
 @Injectable()
-export class LocalAuthGuard extends AuthGuard(LOCAL) {}
+export class LocalAuthGuard extends AuthGuard(LOCAL) {
+  getAuthenticateOptions(): IAuthModuleOptions {
+    return {
+      property: nameOf<AuthRequest>('authUser'),
+    };
+  }
+}

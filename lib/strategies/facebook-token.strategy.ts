@@ -1,14 +1,19 @@
-import { AuthGuard, PassportStrategy } from '@nestjs/passport';
+import {
+  AuthGuard,
+  IAuthModuleOptions,
+  PassportStrategy,
+} from '@nestjs/passport';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import FacebookTokenStrategy, { Profile } from 'passport-facebook-token';
 import { Request } from 'express';
 import { ENV_OPTIONS } from '../auth.constants';
 import { EnvOptions } from '../interfaces/auth-option.interface';
+import { nameOf } from '../helpers/types-helper';
 
 const FB_TOKEN = 'facebook-token';
 
 export interface FacebookRequest extends Request {
-  user: Profile;
+  facebookProfile: Profile;
 }
 
 @Injectable()
@@ -33,19 +38,25 @@ export class FacebookStrategy extends PassportStrategy(
     profile: Profile,
     // _done: Function,
   ): Promise<Profile> {
+    // add object to Request
     return profile;
   }
 }
 
 @Injectable()
 export class FacebookGuard extends AuthGuard(FB_TOKEN) {
+  getAuthenticateOptions(): IAuthModuleOptions {
+    return {
+      property: nameOf<FacebookRequest>('facebookProfile'),
+    };
+  }
+
   handleRequest<Profile>(err: Error, profile: Profile): Profile {
     if (err) {
       throw new UnauthorizedException(err);
     } else if (!profile) {
       throw err || new UnauthorizedException('Facebook profile not found');
     }
-    // append { user: profile } to request
     return profile;
   }
 }

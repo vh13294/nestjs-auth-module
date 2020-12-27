@@ -1,5 +1,9 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthGuard, PassportStrategy } from '@nestjs/passport';
+import {
+  AuthGuard,
+  IAuthModuleOptions,
+  PassportStrategy,
+} from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import {
@@ -9,6 +13,7 @@ import {
 import { TokenPayload } from '../interfaces/token-payload.interface';
 import { ENV_OPTIONS } from '../auth.constants';
 import { EnvOptions } from '../interfaces/auth-option.interface';
+import { nameOf } from '../helpers/types-helper';
 
 const JWT_ACCESS_TOKEN = 'jwt-access-token';
 
@@ -38,4 +43,10 @@ export class JwtAccessTokenStrategy extends PassportStrategy(
 }
 
 @Injectable()
-export class JwtAuthAccessGuard extends AuthGuard(JWT_ACCESS_TOKEN) {}
+export class JwtAuthAccessGuard extends AuthGuard(JWT_ACCESS_TOKEN) {
+  getAuthenticateOptions(): IAuthModuleOptions {
+    return {
+      property: nameOf<AuthRequest>('authUser'),
+    };
+  }
+}

@@ -8,7 +8,7 @@
     "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es2020",
+    "target": "ESNEXT",
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./lib",

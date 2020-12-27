@@ -1,4 +1,4 @@
-export function generateCookie(
+export function cookieFactory(
   key: string,
   value: string,
   maxAgeInSecond: number,

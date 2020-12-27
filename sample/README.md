@@ -29,3 +29,8 @@ docker-compose up -d
 
 npm install --save @nestjs/serve-static
 https only work in safari
+
+## Test HTTPS client on chrome
+
+- Simply click anywhere on the denial page and type “thisisunsafe”.
+- Disable ad-blocker

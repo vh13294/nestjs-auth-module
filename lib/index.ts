@@ -6,5 +6,3 @@ export { CreateUserDto } from './validators/create-user.dto';
 export { AuthRequest } from './interfaces/auth-request.interface';
 
 export { JwtAuthAccessGuard } from './strategies/jwt-access.strategy';
-
-export { AuthService } from './auth.service';
