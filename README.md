@@ -128,5 +128,4 @@ HTTPS_ONLY=TRUE
 
 - Add ? Role authorization??
 - Add unit test in sample (for controller flows?)
-- Password reset?, confirmation email?
 - search for // todo
