@@ -19,7 +19,7 @@ import {
 import { TokenPayload } from './interfaces/token-payload.interface';
 import { EnvOptions } from './interfaces/auth-option.interface';
 import { UserObjectResponse } from './interfaces/user-object-response.interface';
-import { UpdatePasswordDto } from './validators/update-password.dto';
+import { ChangePasswordDto, SetPasswordDto } from './validators/password.dto';
 import {
   generateDeviceId,
   saltHash,
@@ -303,7 +303,7 @@ export class AuthService {
 
   async setInitialPasswordForSocialSignUp(
     authUserId: number,
-    userData: UpdatePasswordDto,
+    userData: SetPasswordDto,
   ): Promise<void> {
     if (authUserId !== userData.userId) {
       throw new ForbiddenException('Incorrect User');
@@ -315,6 +315,29 @@ export class AuthService {
     }
 
     const hashedPassword = await saltHash(userData.password);
+    await this.userService.setUserPassword(authUserId, hashedPassword);
+  }
+
+  async changePassword(
+    authUserId: number,
+    userData: ChangePasswordDto,
+  ): Promise<void> {
+    if (authUserId !== userData.userId) {
+      throw new ForbiddenException('Incorrect User');
+    }
+
+    if (userData.oldPassword === userData.newPassword) {
+      throw new BadRequestException('Please enter new password!');
+    }
+
+    const user = await this.userService.getUserById(authUserId);
+    if (user) {
+      await verifyPassword(userData.oldPassword, user.password);
+    } else {
+      throw new BadRequestException('User not found!');
+    }
+
+    const hashedPassword = await saltHash(userData.newPassword);
     await this.userService.setUserPassword(authUserId, hashedPassword);
   }
 }

@@ -49,17 +49,16 @@ HTTPS_ONLY=TRUE
 ### Login (return cookies)
 
 - For web cookies header automatically attach to request
-- For mobile/flutter, we have to manually save cookie to sharePreference
-  And add it too cookie via plugin
+- For mobile/flutter, we have to manually save cookie
 
-### Access Token Invalid (401)
+### When Access Token Invalid (401)
 
 - Call to renew Token which return new access token,
   and reset max-age of refresh Token
 - Clear global state login=false
 - If request token is valid, return new cookie, set login=true
 
-### Refresh Token Invalid (401)
+### When Refresh Token Invalid (401)
 
 - Redirect front-end to login page
 
@@ -89,17 +88,17 @@ HTTPS_ONLY=TRUE
 
 - use front-end specific SDK, web/flutter
 - Create a "Continue With FB" button, should trigger facebook login
-- Get access_token, => send it to register-via-facebook
-- Verify token, and get email
-- If email exist in db, check if user have facebookID attach in db, return jwt cookies
-- If email exist in db, but no facebookID in db, return warning ask user to use email/password instead
+- Get fb_access_token, => send it to continue-via-facebook
+- Verify token, and get email/names
+- If email exist in db, check if user have facebookID attach, return jwt cookies
+- If email exist in db, but no facebookID, return warning ask user to use email/password instead
 - If email does not exist in db,
 
   - Create new user via fb-email, names
   - Password should be empty
   - if success, return jwt cookies
 
-- For FB, InternalOAuthError: Failed to fetch user profile, usually mean incorrect appKey/appID
+- For FB, InternalOAuthError: Failed to fetch user profile, might also mean incorrect appKey/appID
 
 ## Refresh token inactive policy
 

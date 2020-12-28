@@ -22,7 +22,7 @@ import {
   FacebookRequest,
 } from './strategies/facebook-token.strategy';
 import { UserObjectResponse } from './interfaces/user-object-response.interface';
-import { UpdatePasswordDto } from './validators/update-password.dto';
+import { ChangePasswordDto, SetPasswordDto } from './validators/password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -141,7 +141,7 @@ export class AuthController {
   @Post('set-initial-password-for-social-sign-up')
   async setInitialPasswordForSocialSignUp(
     @Req() req: AuthRequest,
-    @Body(new ValidationPipe()) userData: UpdatePasswordDto,
+    @Body(new ValidationPipe()) userData: SetPasswordDto,
     @Res() res: Response,
   ): Promise<Response> {
     const { authUser } = req;
@@ -152,32 +152,15 @@ export class AuthController {
     return res.sendStatus(200);
   }
 
-  /**
-   *
-   * @UseGuards(JwtAuthAccessGuard)
-   * sendPasswordResetLinkToUserViaEmail(req)
-   * const { user } = req;
-   * email = this.getEmail(user)
-   *
-   * const url = this.generateSignedUrl(
-   * controller,
-   * controller method,
-   * validDuration = 10mn,
-   * )
-   *
-   * this.userService.sendEmail(email, url)
-   *
-   *
-   * @Post('resetPasswordLink')
-   * @UseGuards(UrlGeneratorGuard, JwtAuthAccessGuard)
-   * async resetPasswordLink(req: Body)
-   *
-   * const { user, oldPassword, newPassword } = req;
-   * this.verifyOldPassword(oldPassword, currentPassword)
-   *
-   * this.updateUser(user.id, {
-   * password: hashed-password
-   * })
-   *
-   */
+  @UseGuards(JwtAuthAccessGuard)
+  @Post('change-password')
+  async changePassword(
+    @Req() req: AuthRequest,
+    @Body(new ValidationPipe()) userData: ChangePasswordDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const { authUser } = req;
+    await this.authService.changePassword(authUser.id, userData);
+    return res.sendStatus(200);
+  }
 }
